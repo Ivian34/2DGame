@@ -5,7 +5,7 @@
 #include "Game.h"
 
 
-#define SCREEN_X 32
+#define SCREEN_X 64
 #define SCREEN_Y 16
 
 #define INIT_PLAYER_X_TILES 4
@@ -16,6 +16,7 @@ Scene::Scene()
 {
 	map = NULL;
 	player = NULL;
+	pendingCamUpdate = false;
 }
 
 Scene::~Scene()
@@ -30,12 +31,13 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+	map = TileMap::createTileMap("levels/level02.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
-	projection = glm::ortho(0.f, float(SCREEN_WIDTH), float(SCREEN_HEIGHT), 0.f);
+	camPosition = glm::vec2(0.0f, 0.0f);
+	projection = glm::ortho(camPosition.x, float(SCREEN_WIDTH) + camPosition.x, float(SCREEN_HEIGHT) + camPosition.y, camPosition.y);
 	currentTime = 0.0f;
 }
 
@@ -43,6 +45,7 @@ void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 	player->update(deltaTime);
+	updateCamera();
 }
 
 void Scene::render()
@@ -87,6 +90,19 @@ void Scene::initShaders()
 	texProgram.bindFragmentOutput("outColor");
 	vShader.free();
 	fShader.free();
+}
+
+void Scene::updateCamera()
+{
+	glm::ivec2 pos = player->getPosition();
+
+	if ((pos.x - camPosition.x) < (SCREEN_WIDTH / 3)) {
+		camPosition.x = pos.x - SCREEN_WIDTH / 3;
+	}
+	if ((pos.x - camPosition.x) > 2*(SCREEN_WIDTH / 3)) {
+		camPosition.x = pos.x - 2*(SCREEN_WIDTH / 3);
+	}
+	projection = glm::ortho(camPosition.x, float(SCREEN_WIDTH) + camPosition.x, float(SCREEN_HEIGHT) + camPosition.y, camPosition.y);
 }
 
 
