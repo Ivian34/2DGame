@@ -9,6 +9,9 @@
 #define JUMP_HEIGHT 96
 #define FALL_STEP 4
 
+#define PLAYER_HEIGHT 40
+#define PLAYER_WIDTH 32
+
 
 enum PlayerAnims
 {
@@ -20,7 +23,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
 	bJumping = false;
 	spritesheet.loadFromFile("images/MM.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	sprite = Sprite::createSprite(glm::ivec2(64, 80), glm::vec2(32.f / 488.f, 40.f / 488.f), &spritesheet, &shaderProgram);
+	sprite = Sprite::createSprite(glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), glm::vec2(32.f / 488.f, 40.f / 488.f), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(5); // Solo STAND y MOVE
 
 	// Animación STAND
@@ -114,7 +117,7 @@ void Player::update(int deltaTime)
 			{ // Falling
 				if (sprite->animation() != FALL)
 					sprite->changeAnimation(FALL);
-				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(64, 80), &posPlayer.y);
+				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y);
 			}
 			else
 			{
@@ -126,7 +129,7 @@ void Player::update(int deltaTime)
 	else
 	{
 		posPlayer.y += FALL_STEP;
-		if(map->collisionMoveDown(posPlayer, glm::ivec2(64, 80), &posPlayer.y))
+		if(map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y))
 		{
 			if(Game::instance().getKey(GLFW_KEY_UP))
 			{

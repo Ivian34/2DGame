@@ -6,6 +6,7 @@
 #include "ShaderProgram.h"
 #include "TileMap.h"
 #include "Player.h"
+#include "SpecialTile.h"
 
 
 
@@ -37,6 +38,7 @@ private:
 	glm::vec2 camPosition;
 
 	bool pendingCamUpdate;
+	SpecialTile *tile;
 
 };
 
