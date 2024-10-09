@@ -32,6 +32,8 @@ Sprite::Sprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Te
 	shaderProgram = program;
 	currentAnimation = -1;
 	position = glm::vec2(0.f);
+	scale = glm::vec2(1.f, 1.f); // Inicializar la escala a 1
+	quadSizeSprite = quadSize;
 }
 
 void Sprite::update(int deltaTime)
@@ -50,7 +52,18 @@ void Sprite::update(int deltaTime)
 
 void Sprite::render() const
 {
-	glm::mat4 modelview = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.f));
+	glm::mat4 modelview = glm::mat4(1.0f);
+	// Trasladar a la posición del sprite
+	modelview = glm::translate(modelview, glm::vec3(position.x, position.y, 0.f));
+
+	// Trasladar el origen al centro del sprite
+	modelview = glm::translate(modelview, glm::vec3(quadSizeSprite.x / 2.0f, quadSizeSprite.y / 2.0f, 0.0f));
+
+	// Aplicar la escala
+	modelview = glm::scale(modelview, glm::vec3(scale.x, scale.y, 1.f));
+
+	// Trasladar el origen de vuelta a la esquina superior izquierda
+	modelview = glm::translate(modelview, glm::vec3(-quadSizeSprite.x / 2.0f, -quadSizeSprite.y / 2.0f, 0.0f));
 	shaderProgram->setUniformMatrix4f("modelview", modelview);
 	shaderProgram->setUniform2f("texCoordDispl", texCoordDispl.x, texCoordDispl.y);
 	glEnable(GL_TEXTURE_2D);
@@ -104,6 +117,11 @@ int Sprite::animation() const
 void Sprite::setPosition(const glm::vec2 &pos)
 {
 	position = pos;
+}
+
+void Sprite::setScale(const glm::vec2& s)
+{
+	scale = s;
 }
 
 
