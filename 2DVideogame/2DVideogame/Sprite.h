@@ -34,6 +34,7 @@ public:
 	int animation() const;
 	
 	void setPosition(const glm::vec2 &pos);
+	void setScale(const glm::vec2& s);
 
 private:
 	Texture *texture;
@@ -46,6 +47,8 @@ private:
 	float timeAnimation;
 	glm::vec2 texCoordDispl;
 	vector<AnimKeyframes> animations;
+	glm::vec2 scale;
+	glm::vec2 quadSizeSprite;
 
 };
 

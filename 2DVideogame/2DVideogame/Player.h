@@ -29,6 +29,7 @@ private:
 	Texture spritesheet;
 	Sprite *sprite;
 	TileMap *map;
+	bool facingLeft;
 
 };
 
