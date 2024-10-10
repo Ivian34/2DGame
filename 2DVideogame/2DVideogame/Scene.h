@@ -38,7 +38,6 @@ private:
 	glm::vec2 camPosition;
 
 	bool pendingCamUpdate;
-	SpecialTile *tile;
 
 };
 

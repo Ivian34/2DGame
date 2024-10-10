@@ -8,20 +8,18 @@ class SpecialTile
 {
 
 public:
-	SpecialTile(const glm::vec2 &pos, const string &filename, ShaderProgram &shaderProgram, const glm::vec2 &tileSize, const glm::vec2 &sizeInSpritesheet);
-
+	void init(const glm::vec2 &pos, const string &filename, ShaderProgram &shaderProgram, int tileSize, const glm::vec2 &spritesheetSize);
 	void update(int deltaTime);
 	void render();
 
-	void setTileMap(TileMap *tileMap);
+	//void setTileMap(TileMap *tileMap);
 	void setTexPosition(const glm::vec2 &texturePos);
-	~SpecialTile();
 
 private:
-	glm::ivec2 posTile;
+	glm::ivec2 posTile, spriteSheetSize;
 	Texture spritesheet;
 	Sprite *sprite;
-	TileMap *map;
+	//TileMap *map;
 };
 
 

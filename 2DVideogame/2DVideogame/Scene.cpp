@@ -31,7 +31,7 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	map = TileMap::createTileMap("levels/level01.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+	map = TileMap::createTileMap("levels/level02.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -39,8 +39,6 @@ void Scene::init()
 	camPosition = glm::vec2(0.0f, 0.0f);
 	projection = glm::ortho(camPosition.x, float(SCREEN_WIDTH) + camPosition.x, float(SCREEN_HEIGHT) + camPosition.y, camPosition.y);
 	currentTime = 0.0f;
-	tile = new SpecialTile(glm::vec2(22 *map->getTileSize(), 22 *map->getTileSize()), "images/blocks.png", texProgram, glm::ivec2(16.0f, 16.0f), glm::vec2(16.f / 64.f, 16.f / 64.f));
-	tile->setTexPosition(glm::vec2(0.f, 32.0f / 64.0f));
 }
 
 void Scene::update(int deltaTime)
@@ -62,7 +60,6 @@ void Scene::render()
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 	map->render();
 	player->render();
-	tile->render();
 }
 
 void Scene::initShaders()

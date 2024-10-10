@@ -6,13 +6,13 @@ enum TileAnims
 	BASE, DESTROY, NUM_ANIMS
 };
 
-SpecialTile::SpecialTile(const glm::vec2 &pos, const string &filename, ShaderProgram &shaderProgram, const glm::vec2 &tileSize, const glm::vec2 &sizeInSpritesheet)
+void SpecialTile::init(const glm::vec2 &pos, const string &filename, ShaderProgram &shaderProgram, int tileSize, const glm::vec2 &spritesheetSize)
 {
 	spritesheet.loadFromFile(filename, TEXTURE_PIXEL_FORMAT_RGBA);
-	sprite = Sprite::createSprite(tileSize, sizeInSpritesheet, &spritesheet, &shaderProgram);
+	sprite = Sprite::createSprite(glm::ivec2(tileSize), glm::vec2(float(tileSize)/(spritesheetSize.x*tileSize), float(tileSize) / (spritesheetSize.y*tileSize)), &spritesheet, &shaderProgram);
 	posTile = pos;
 	sprite->setNumberAnimations(NUM_ANIMS); // BASE y DESTROY
-
+	spriteSheetSize = spritesheetSize;
 	sprite->setPosition(posTile);
 }
 
@@ -27,17 +27,14 @@ void SpecialTile::render()
 	sprite->render();
 }
 
-void SpecialTile::setTileMap(TileMap * tileMap)
+/* void SpecialTile::setTileMap(TileMap * tileMap)
 {
 	map = tileMap;
-}
+}*/
 
 void SpecialTile::setTexPosition(const glm::vec2 & texturePos)
 {
-	sprite->addKeyframe(BASE, glm::vec2(texturePos));
+	sprite->addKeyframe(BASE, glm::vec2(texturePos.x/spriteSheetSize.x, texturePos.y/spriteSheetSize.y));
 	sprite->changeAnimation(BASE);
 }
 
-SpecialTile::~SpecialTile()
-{
-}

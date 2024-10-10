@@ -18,7 +18,7 @@ TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoo
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
-	loadLevel(levelFile);
+	loadLevel(levelFile, minCoords, program);
 	prepareArrays(minCoords, program);
 }
 
@@ -38,6 +38,12 @@ void TileMap::render() const
 	glEnableVertexAttribArray(texCoordLocation);
 	glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
 	glDisable(GL_TEXTURE_2D);
+	
+	objects[0]->render();
+	objects[1]->render();
+	for (int i = 0; i < int(objects.size()); ++i) {
+		objects[i]->render();
+	}
 }
 
 void TileMap::free()
@@ -45,7 +51,7 @@ void TileMap::free()
 	glDeleteBuffers(1, &vbo);
 }
 
-bool TileMap::loadLevel(const string &levelFile)
+bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
 	ifstream fin;
 	string line, tilesheetFile;
@@ -93,6 +99,40 @@ bool TileMap::loadLevel(const string &levelFile)
 		fin.get(tile);
 #endif
 	}
+	getline(fin, line);
+	if (line.compare(0, 7, "OBJECTS") != 0)
+		return false;
+	getline(fin, line);
+	cout << line << endl;
+	while (line.compare(0, 3, "END") != 0) {
+		int objN, objSize;
+		glm::ivec2 sheetSize, tilePos, objPos;
+		getline(fin, line);
+		sstream.str(line);
+		sstream >> objN >> objSize;
+		getline(fin, line);
+		sstream.str(line);
+		sstream >> tilesheetFile;
+		getline(fin, line);
+		sstream.str(line);
+		sstream >> sheetSize.x >> sheetSize.y;
+		getline(fin, line);
+		sstream.str(line);
+		sstream >> tilePos.x >> tilePos.y;
+		cout << tilePos.x << endl;
+		for (int i = 0; i < objN; ++i) {
+			getline(fin, line);
+			sstream.str(line);
+			sstream >> objPos.x >> objPos.y;
+			cout << line << endl;
+			SpecialTile *newObj = new SpecialTile();
+			newObj->init(glm::vec2(minCoords.x + objPos.x * tileSize, minCoords.y + objPos.y * tileSize), tilesheetFile, program, objSize, sheetSize);
+			newObj->setTexPosition(tilePos);
+			objects.push_back(newObj);
+		}
+		getline(fin, line);
+	}
+	cout << int(objects.size()) << endl;
 	fin.close();
 	
 	return true;
