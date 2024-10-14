@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
-#include "SpecialTile.h"
+#include "Object.h"
 #include <vector>
 
 
@@ -50,7 +50,9 @@ private:
 	Texture tilesheet;
 	glm::vec2 tileTexSize;
 	int *map;
-	vector<SpecialTile *> objects;
+
+
+	vector<Object *> objects;
 
 };
 

@@ -39,11 +39,9 @@ void TileMap::render() const
 	glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
 	glDisable(GL_TEXTURE_2D);
 	
-	objects[0]->render();
-	objects[1]->render();
 	for (int i = 0; i < int(objects.size()); ++i) {
 		objects[i]->render();
-	}
+	} 
 }
 
 void TileMap::free()
@@ -106,7 +104,7 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 	cout << line << endl;
 	while (line.compare(0, 3, "END") != 0) {
 		int objN, objSize;
-		glm::ivec2 sheetSize, tilePos, objPos;
+		glm::ivec2 sheetSize, tilePos;
 		getline(fin, line);
 		sstream.str(line);
 		sstream >> objN >> objSize;
@@ -119,14 +117,13 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 		getline(fin, line);
 		sstream.str(line);
 		sstream >> tilePos.x >> tilePos.y;
-		cout << tilePos.x << endl;
 		for (int i = 0; i < objN; ++i) {
+			glm::ivec2 objPos;
 			getline(fin, line);
 			sstream.str(line);
 			sstream >> objPos.x >> objPos.y;
-			cout << line << endl;
-			SpecialTile *newObj = new SpecialTile();
-			newObj->init(glm::vec2(minCoords.x + objPos.x * tileSize, minCoords.y + objPos.y * tileSize), tilesheetFile, program, objSize, sheetSize);
+			Object *newObj = new Object();
+			newObj->init(glm::vec2(objPos.x * tileSize, objPos.y * tileSize), tilesheetFile, program, objSize, sheetSize, minCoords);
 			newObj->setTexPosition(tilePos);
 			objects.push_back(newObj);
 		}
@@ -203,6 +200,18 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 		if(map[y*mapSize.x+x] != 0)
 			return true;
 	}
+
+	x = pos.x;
+	y0 = pos.y;
+	y1 = (pos.y + size.y - 1);
+	for (int i = 0; i < int(objects.size()); ++i) {
+		glm::ivec2 objPos = objects[i]->getPosition();
+		int objSize = objects[i]->getSize();
+		if ((x > objPos.x && x <= (objPos.x + objSize)) &&
+			(y0 < (objPos.y + objSize) && objPos.y < y1)) {
+			return true;
+		}
+	}
 	
 	return false;
 }
@@ -219,13 +228,24 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 		if(map[y*mapSize.x+x] != 0)
 			return true;
 	}
+	x = (pos.x + size.x - 1);
+	y0 = pos.y;
+	y1 = (pos.y + size.y - 1);
+	for (int i = 0; i < int(objects.size()); ++i) {
+		glm::ivec2 objPos = objects[i]->getPosition();
+		int objSize = objects[i]->getSize();
+		if ((x >= objPos.x && x < (objPos.x + objSize)) && 
+			(y0 < (objPos.y + objSize) && objPos.y < y1)) {
+			return true;
+		}
+	}
 	
 	return false;
 }
 
 bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const
 {
-	int x0, x1, y;
+	int x0, x1, y, y2;
 	
 	x0 = pos.x / tileSize;
 	x1 = (pos.x + size.x - 1) / tileSize;
@@ -235,6 +255,25 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 		if(map[y*mapSize.x+x] != 0)
 		{
 			if(*posY - tileSize * y + size.y <= 4)
+			{
+				*posY = tileSize * y - size.y;
+				return true;
+			}
+		}
+	}
+
+	x0 = pos.x;
+	x1 = (pos.x + size.x - 1);
+	y2 = (pos.y + size.y - 1);
+	for (int i = 0; i < int(objects.size()); ++i)
+	{
+		glm::ivec2 objPos = objects[i]->getPosition();
+		int objSize = objects[i]->getSize();
+
+		if ((y2 >= objPos.y && y2 < (objPos.y + objSize)) &&
+			(x0 < (objPos.x + objSize) && objPos.x < x1))
+		{
+			if (*posY - tileSize * y + size.y <= 4)
 			{
 				*posY = tileSize * y - size.y;
 				return true;
