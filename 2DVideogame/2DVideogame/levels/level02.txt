@@ -29,14 +29,16 @@ images/blocks.png 	-- Tilesheet
 11                                                                    11
 11                                                                    11
 11                                                                    11
-11                                                                    11
+11        1                                                           11
 111111111111111111111111111111111111111111111111111111111111111111111111
 OBJECTS
 Stone                              -- Object name
-2 16                              -- Number of objects & object size
+4 16                              -- Number of objects & object size
 images/blocks.png       -- Tilesheet
 4 4				--Tilesheet Size
 2 2                               -- Tile position
-10 26 
-16 26 
+10 25 
+15 25 
+15 26 
+15 24 
 END                                 -- Objects end

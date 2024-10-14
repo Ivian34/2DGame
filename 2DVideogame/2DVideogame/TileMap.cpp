@@ -48,6 +48,19 @@ void TileMap::render() const
 	} 
 }
 
+void TileMap::update(int deltaTime)
+{
+	for (int i = 0; i < int(objects.size()); ++i) {
+		objects[i]->update(deltaTime);
+	}
+
+	auto it = objects.cbegin();
+	while (it != objects.cend()) {
+		if (!(*it)->isActive()) objects.erase(it);
+		else ++it;
+	}
+}
+
 void TileMap::free()
 {
 	glDeleteBuffers(1, &vbo);
@@ -129,6 +142,7 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 			newObj->init(glm::vec2(objPos.x * tileSize, objPos.y * tileSize), tilesheetFile, program, objSize, sheetSize, minCoords);
 			newObj->setTexPosition(tilePos);
 			newObj->setTileMap(this);
+			newObj->setInteractable();
 			objects.push_back(newObj);
 		}
 		getline(fin, line);
@@ -208,13 +222,15 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, b
 	y0 = pos.y;
 	y1 = (pos.y + size.y - 1);
 	for (int i = 0; i < int(objects.size()); ++i) {
-		glm::ivec2 objPos = objects[i]->getPosition();
-		int objSize = objects[i]->getSize();
-		if ((x > objPos.x && x <= (objPos.x + objSize)) &&
-			(y0 < (objPos.y + objSize) && objPos.y < y1)) {
-			*collision = true;
-			interactedObj = objects[i];
-			return true;
+		if (objects[i]->canCollide()) {
+			glm::ivec2 objPos = objects[i]->getPosition();
+			int objSize = objects[i]->getSize();
+			if ((x > objPos.x && x <= (objPos.x + objSize)) &&
+				(y0 < (objPos.y + objSize) && objPos.y < y1)) {
+				*collision = true;
+				interactedObj = objects[i];
+				return true;
+			}
 		}
 	}
 	
@@ -238,13 +254,15 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, 
 	y0 = pos.y;
 	y1 = (pos.y + size.y - 1);
 	for (int i = 0; i < int(objects.size()); ++i) {
-		glm::ivec2 objPos = objects[i]->getPosition();
-		int objSize = objects[i]->getSize();
-		if ((x >= objPos.x && x < (objPos.x + objSize)) && 
-			(y0 < (objPos.y + objSize) && objPos.y < y1)) {
-			*collision = true;
-			interactedObj = objects[i];
-			return true;
+		if (objects[i]->canCollide()) {
+			glm::ivec2 objPos = objects[i]->getPosition();
+			int objSize = objects[i]->getSize();
+			if ((x >= objPos.x && x < (objPos.x + objSize)) &&
+				(y0 < (objPos.y + objSize) && objPos.y < y1)) {
+				*collision = true;
+				interactedObj = objects[i];
+				return true;
+			}
 		}
 	}
 	
@@ -275,17 +293,19 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	y2 = (pos.y + size.y - 1);
 	for (int i = 0; i < int(objects.size()); ++i)
 	{
-		glm::ivec2 objPos = objects[i]->getPosition();
-		int objSize = objects[i]->getSize();
+		if (objects[i]->canCollide()) {
+			glm::ivec2 objPos = objects[i]->getPosition();
+			int objSize = objects[i]->getSize();
 
-		if ((y2 >= objPos.y && y2 < (objPos.y + objSize)) &&
-			(x0 < (objPos.x + objSize) && objPos.x < x1))
-		{
-			if (*posY - tileSize * y + size.y <= 4)
+			if ((y2 >= objPos.y && y2 < (objPos.y + objSize)) &&
+				(x0 < (objPos.x + objSize) && objPos.x < x1))
 			{
-				*posY = tileSize * y - size.y;
-				*collision = true;
-				return true;
+				if (*posY - tileSize * y + size.y <= 5)
+				{
+					*posY = tileSize * y - size.y;
+					*collision = true;
+					return true;
+				}
 			}
 		}
 	}
@@ -313,13 +333,15 @@ bool TileMap::collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) c
 	y2 = pos.y;
 	for (int i = 0; i < int(objects.size()); ++i)
 	{
-		glm::ivec2 objPos = objects[i]->getPosition();
-		int objSize = objects[i]->getSize();
+		if (objects[i]->canCollide()) {
+			glm::ivec2 objPos = objects[i]->getPosition();
+			int objSize = objects[i]->getSize();
 
-		if ((y2 > objPos.y && y2 <= (objPos.y + objSize)) &&
-			(x0 < (objPos.x + objSize) && objPos.x < x1))
-		{
-			return true;
+			if ((y2 > objPos.y && y2 <= (objPos.y + objSize)) &&
+				(x0 < (objPos.x + objSize) && objPos.x < x1))
+			{
+				return true;
+			}
 		}
 	}
 

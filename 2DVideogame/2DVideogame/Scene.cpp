@@ -45,6 +45,7 @@ void Scene::update(int deltaTime)
 {
 	currentTime += deltaTime;
 	player->update(deltaTime);
+	map->update(deltaTime);
 	updateCamera();
 }
 
