@@ -29,7 +29,6 @@ public:
 	~TileMap();
 
 	void render() const;
-	void update(int deltaTime);
 	void free();
 	
 	int getTileSize() const { return tileSize; }

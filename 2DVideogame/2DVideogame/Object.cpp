@@ -57,35 +57,10 @@ int Object::getSize() const {
 
 bool Object::canBeMoved(int yPos) const
 {
-	if (isInteractible() && yPos != (posObj.y + objSize)) {
+	if (yPos != (posObj.y + objSize)) {
 		
 		return false;
 	}
 	return !map->collisionStaticUp(glm::vec2(posObj.x, posObj.y - 1), glm::ivec2(objSize));
-}
-
-bool Object::isActive() const
-{
-	return objState != ObjectStates::INACTIVE;
-}
-
-bool Object::isInteractible() const
-{
-	return objState == ObjectStates::INTERACTABLE;
-}
-
-bool Object::canCollide() const
-{
-	return objState == ObjectStates::INTERACTABLE || objState == ObjectStates::STATIC;
-}
-
-void Object::setInteractable()
-{
-	objState = ObjectStates::INTERACTABLE;
-}
-
-void Object::setHeld()
-{
-	objState = ObjectStates::HELD;
 }
 

@@ -148,10 +148,10 @@ void Player::update(int deltaTime)
 			}
 			else if (Game::instance().getKey(GLFW_KEY_Z) && !carryObj) {
 				if (lastInteractableObj != nullptr && collisions[OBJH] && lastInteractableObj->canBeMoved(posPlayer.y + PLAYER_HEIGHT)) {
+					cout << "Movable obj" << endl;
 					carryObj = true;
 					currentCarryObj = lastInteractableObj;
 					currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
-					currentCarryObj->setHeld();
 				}
 			}
 		}
@@ -161,7 +161,7 @@ void Player::update(int deltaTime)
 		currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
 	}
 	
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));	
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
 
 void Player::render()

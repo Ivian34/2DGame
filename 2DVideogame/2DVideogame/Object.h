@@ -4,9 +4,6 @@
 #include "Sprite.h"
 
 class TileMap;
-
-enum class ObjectStates {INTERACTABLE, STATIC, HELD, MOVING, DESTROY, INACTIVE, NSTATES};
-
 class Object
 {
 
@@ -23,23 +20,12 @@ public:
 	int getSize() const;
 	bool canBeMoved(int yPos) const;
 
-	//State checks
-	bool isActive() const;
-	bool isInteractible() const;
-	bool canCollide() const;
-
-	//State setters
-	void setInteractable();
-	void setHeld();
-
 private:
 	glm::ivec2 posObj, spriteSheetSize, spriteDispl;
 	Texture spritesheet;
 	Sprite *sprite;
 	int objSize;
 	TileMap *map;
-
-	ObjectStates objState = ObjectStates::STATIC;
 };
 
 
