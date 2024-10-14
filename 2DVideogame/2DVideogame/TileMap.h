@@ -51,7 +51,6 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 
-
 	vector<Object *> objects;
 
 };
