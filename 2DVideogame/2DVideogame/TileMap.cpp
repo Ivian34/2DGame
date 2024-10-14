@@ -3,10 +3,14 @@
 #include <sstream>
 #include <vector>
 #include "TileMap.h"
-
+#include "Object.h"
 
 using namespace std;
 
+enum PlayerCollisions
+{
+	OBJH, OBJD, ENEMY, NCOLLISIONS
+};
 
 TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
@@ -101,7 +105,6 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 	if (line.compare(0, 7, "OBJECTS") != 0)
 		return false;
 	getline(fin, line);
-	cout << line << endl;
 	while (line.compare(0, 3, "END") != 0) {
 		int objN, objSize;
 		glm::ivec2 sheetSize, tilePos;
@@ -125,11 +128,11 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 			Object *newObj = new Object();
 			newObj->init(glm::vec2(objPos.x * tileSize, objPos.y * tileSize), tilesheetFile, program, objSize, sheetSize, minCoords);
 			newObj->setTexPosition(tilePos);
+			newObj->setTileMap(this);
 			objects.push_back(newObj);
 		}
 		getline(fin, line);
 	}
-	cout << int(objects.size()) << endl;
 	fin.close();
 	
 	return true;
@@ -188,7 +191,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 // Method collisionMoveDown also corrects Y coordinate if the box is
 // already intersecting a tile below.
 
-bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const
+bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const
 {
 	int x, y0, y1;
 	
@@ -209,6 +212,8 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 		int objSize = objects[i]->getSize();
 		if ((x > objPos.x && x <= (objPos.x + objSize)) &&
 			(y0 < (objPos.y + objSize) && objPos.y < y1)) {
+			*collision = true;
+			interactedObj = objects[i];
 			return true;
 		}
 	}
@@ -216,7 +221,7 @@ bool TileMap::collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) c
 	return false;
 }
 
-bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const
+bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const
 {
 	int x, y0, y1;
 	
@@ -228,6 +233,7 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 		if(map[y*mapSize.x+x] != 0)
 			return true;
 	}
+
 	x = (pos.x + size.x - 1);
 	y0 = pos.y;
 	y1 = (pos.y + size.y - 1);
@@ -236,6 +242,8 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 		int objSize = objects[i]->getSize();
 		if ((x >= objPos.x && x < (objPos.x + objSize)) && 
 			(y0 < (objPos.y + objSize) && objPos.y < y1)) {
+			*collision = true;
+			interactedObj = objects[i];
 			return true;
 		}
 	}
@@ -243,7 +251,7 @@ bool TileMap::collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) 
 	return false;
 }
 
-bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const
+bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool *collision, Object*& interactedObj) const
 {
 	int x0, x1, y, y2;
 	
@@ -276,11 +284,45 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 			if (*posY - tileSize * y + size.y <= 4)
 			{
 				*posY = tileSize * y - size.y;
+				*collision = true;
 				return true;
 			}
 		}
 	}
 	
+	return false;
+}
+
+bool TileMap::collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const
+{
+	int x0, x1, y, y2;
+
+	x0 = pos.x / tileSize;
+	x1 = (pos.x + size.x - 1) / tileSize;
+	y = pos.y / tileSize;
+	for (int x = x0; x <= x1; x++)
+	{
+		if (map[y*mapSize.x + x] != 0)
+		{
+			return true;
+		}
+	}
+
+	x0 = pos.x;
+	x1 = (pos.x + size.x - 1);
+	y2 = pos.y;
+	for (int i = 0; i < int(objects.size()); ++i)
+	{
+		glm::ivec2 objPos = objects[i]->getPosition();
+		int objSize = objects[i]->getSize();
+
+		if ((y2 > objPos.y && y2 <= (objPos.y + objSize)) &&
+			(x0 < (objPos.x + objSize) && objPos.x < x1))
+		{
+			return true;
+		}
+	}
+
 	return false;
 }
 

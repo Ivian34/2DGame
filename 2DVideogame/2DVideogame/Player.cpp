@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include "Player.h"
 #include "Game.h"
+#include "Object.h"
 
 
 #define JUMP_ANGLE_STEP 4
@@ -19,6 +20,10 @@ enum PlayerAnims
 	STAND, MOVE, CROUCH, JUMP, FALL
 };
 
+enum PlayerCollisions
+{
+	OBJH, OBJD, ENEMY, NCOLLISIONS
+};
 
 void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 {
@@ -63,6 +68,9 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 void Player::update(int deltaTime)
 {
+	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
+	lastInteractableObj = nullptr;
+
 	sprite->update(deltaTime);
 	if(Game::instance().getKey(GLFW_KEY_LEFT))
 	{
@@ -71,7 +79,7 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE)
 			sprite->changeAnimation(MOVE);
 		posPlayer.x -= 3;
-		if (map->collisionMoveLeft(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT)))
+		if (map->collisionMoveLeft(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &collisions[OBJH], lastInteractableObj))
 		{
 			posPlayer.x += 3;
 			sprite->changeAnimation(STAND);
@@ -84,7 +92,7 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != MOVE)
 			sprite->changeAnimation(MOVE);
 		posPlayer.x += 3;
-		if (map->collisionMoveRight(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT)))
+		if (map->collisionMoveRight(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &collisions[OBJH], lastInteractableObj))
 		{
 			posPlayer.x -= 3;
 			sprite->changeAnimation(STAND);
@@ -118,7 +126,7 @@ void Player::update(int deltaTime)
 			{ // Falling
 				if (sprite->animation() != FALL)
 					sprite->changeAnimation(FALL);
-				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y);
+				bJumping = !map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y, &collisions[OBJD], lastInteractableObj);
 			}
 			else
 			{
@@ -130,7 +138,7 @@ void Player::update(int deltaTime)
 	else
 	{
 		posPlayer.y += FALL_STEP;
-		if(map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y))
+		if(map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y, &collisions[OBJD], lastInteractableObj))
 		{
 			if(Game::instance().getKey(GLFW_KEY_UP))
 			{
@@ -138,7 +146,19 @@ void Player::update(int deltaTime)
 				jumpAngle = 0;
 				startY = posPlayer.y;
 			}
+			else if (Game::instance().getKey(GLFW_KEY_Z) && !carryObj) {
+				if (lastInteractableObj != nullptr && collisions[OBJH] && lastInteractableObj->canBeMoved(posPlayer.y + PLAYER_HEIGHT)) {
+					cout << "Movable obj" << endl;
+					carryObj = true;
+					currentCarryObj = lastInteractableObj;
+					currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
+				}
+			}
 		}
+	}
+
+	if (carryObj) {
+		currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
 	}
 	
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));

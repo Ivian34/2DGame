@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 #include "Texture.h"
 #include "ShaderProgram.h"
-#include "Object.h"
 #include <vector>
 
 
@@ -14,6 +13,8 @@
 // it builds a single VBO that contains all tiles. As a result the render
 // method draws the whole map independently of what is visible.
 
+
+class Object;
 
 class TileMap
 {
@@ -32,9 +33,11 @@ public:
 	
 	int getTileSize() const { return tileSize; }
 
-	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY) const;
+	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
+	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
+	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool *collision, Object*& interactedObj) const;
+	
+	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	
 private:
 	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
@@ -51,8 +54,7 @@ private:
 	glm::vec2 tileTexSize;
 	int *map;
 
-	vector<Object *> objects;
-
+	vector<Object*> objects;
 };
 
 

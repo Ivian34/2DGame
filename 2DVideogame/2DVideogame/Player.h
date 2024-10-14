@@ -4,6 +4,7 @@
 
 #include "Sprite.h"
 #include "TileMap.h"
+#include <vector>
 
 
 // Player is basically a Sprite that represents the player. As such it has
@@ -29,8 +30,14 @@ private:
 	Texture spritesheet;
 	Sprite *sprite;
 	TileMap *map;
+	
+	//Player states
 	bool facingLeft;
+	bool carryObj = false;
 
+	bool collisions[2];
+	Object *lastInteractableObj;
+	Object *currentCarryObj;
 };
 
 
