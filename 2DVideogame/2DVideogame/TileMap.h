@@ -29,16 +29,17 @@ public:
 	~TileMap();
 
 	void render() const;
+	void update(int deltaTime);
 	void free();
-	
+
 	int getTileSize() const { return tileSize; }
 
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool *collision, Object*& interactedObj) const;
-	
+
 	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
-	
+
 private:
 	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
@@ -59,5 +60,4 @@ private:
 
 
 #endif // _TILE_MAP_INCLUDE
-
 

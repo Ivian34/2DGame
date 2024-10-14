@@ -32,7 +32,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	sprite = Sprite::createSprite(glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), glm::vec2(float(PLAYER_WIDTH) / 488.f, float(PLAYER_HEIGHT) / 488.f), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(5); // Solo STAND y MOVE
 
-	// Animación STAND
+									// Animación STAND
 	sprite->setAnimationSpeed(STAND, 8);
 	sprite->addKeyframe(STAND, glm::vec2(0.f, 0.f));
 	sprite->addKeyframe(STAND, glm::vec2(32.f / 488.f, 0.f));
@@ -72,7 +72,7 @@ void Player::update(int deltaTime)
 	lastInteractableObj = nullptr;
 
 	sprite->update(deltaTime);
-	if(Game::instance().getKey(GLFW_KEY_LEFT))
+	if (Game::instance().getKey(GLFW_KEY_LEFT))
 	{
 		facingLeft = true;
 		sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
@@ -85,7 +85,7 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(STAND);
 		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_RIGHT))
+	else if (Game::instance().getKey(GLFW_KEY_RIGHT))
 	{
 		facingLeft = false;
 		sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
@@ -98,7 +98,7 @@ void Player::update(int deltaTime)
 			sprite->changeAnimation(STAND);
 		}
 	}
-	else if(Game::instance().getKey(GLFW_KEY_DOWN))
+	else if (Game::instance().getKey(GLFW_KEY_DOWN))
 	{
 		if (sprite->animation() != CROUCH)
 			sprite->changeAnimation(CROUCH);
@@ -109,12 +109,12 @@ void Player::update(int deltaTime)
 		if (sprite->animation() != STAND)
 			sprite->changeAnimation(STAND);
 	}
-	
-	
-	if(bJumping)
+
+
+	if (bJumping)
 	{
 		jumpAngle += JUMP_ANGLE_STEP;
-		if(jumpAngle == 180)
+		if (jumpAngle == 180)
 		{
 			bJumping = false;
 			posPlayer.y = startY;
@@ -122,7 +122,7 @@ void Player::update(int deltaTime)
 		else
 		{
 			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
-			if(jumpAngle > 90)
+			if (jumpAngle > 90)
 			{ // Falling
 				if (sprite->animation() != FALL)
 					sprite->changeAnimation(FALL);
@@ -138,9 +138,9 @@ void Player::update(int deltaTime)
 	else
 	{
 		posPlayer.y += FALL_STEP;
-		if(map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y, &collisions[OBJD], lastInteractableObj))
+		if (map->collisionMoveDown(posPlayer, glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), &posPlayer.y, &collisions[OBJD], lastInteractableObj))
 		{
-			if(Game::instance().getKey(GLFW_KEY_UP))
+			if (Game::instance().getKey(GLFW_KEY_UP))
 			{
 				bJumping = true;
 				jumpAngle = 0;
@@ -148,10 +148,10 @@ void Player::update(int deltaTime)
 			}
 			else if (Game::instance().getKey(GLFW_KEY_Z) && !carryObj) {
 				if (lastInteractableObj != nullptr && collisions[OBJH] && lastInteractableObj->canBeMoved(posPlayer.y + PLAYER_HEIGHT)) {
-					cout << "Movable obj" << endl;
 					carryObj = true;
 					currentCarryObj = lastInteractableObj;
 					currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
+					currentCarryObj->setHeld();
 				}
 			}
 		}
@@ -160,7 +160,7 @@ void Player::update(int deltaTime)
 	if (carryObj) {
 		currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
 	}
-	
+
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 }
 
