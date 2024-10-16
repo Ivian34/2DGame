@@ -18,10 +18,13 @@ public:
 	void setTileMap(TileMap *tileMap);
 	void setTexPosition(const glm::vec2 &texturePos);
 	void setPos(const glm::vec2 &pos);
+	void setVelocity(const glm::vec2 &v);
 
 	glm::ivec2 getPosition() const;
 	int getSize() const;
 	bool canBeMoved(int yPos) const;
+
+	void throwObject(const glm::vec2 &v);
 
 	//State checks
 	bool isActive() const;
@@ -31,15 +34,19 @@ public:
 	//State setters
 	void setInteractable();
 	void setHeld();
+	void setMoving();
 
 private:
 	glm::ivec2 posObj, spriteSheetSize, spriteDispl;
+	glm::vec2 velObj;
 	Texture spritesheet;
 	Sprite *sprite;
-	int objSize;
+	int objSize, throwAngle, startY;
 	TileMap *map;
 
 	ObjectStates objState = ObjectStates::STATIC;
+
+	bool bThrow = false;
 };
 
 

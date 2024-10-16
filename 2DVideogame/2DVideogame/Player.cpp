@@ -14,6 +14,9 @@
 #define PLAYER_WIDTH 32
 #define PLAYER_HEIGHT 40
 
+//Trowing
+#define THROW_COOLDOWN 1
+#define THROW_VELOCITY 8
 
 enum PlayerAnims
 {
@@ -68,6 +71,10 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 void Player::update(int deltaTime)
 {
+	//Timers
+	throwCooldown -= deltaTime/1000.f;
+
+
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
 	lastInteractableObj = nullptr;
 
@@ -152,13 +159,21 @@ void Player::update(int deltaTime)
 					currentCarryObj = lastInteractableObj;
 					currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
 					currentCarryObj->setHeld();
+					throwCooldown = float(THROW_COOLDOWN);
 				}
 			}
 		}
 	}
 
 	if (carryObj) {
-		currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
+		if (Game::instance().getKey(GLFW_KEY_Z) && throwCooldown < 0) {
+			carryObj = false;
+			currentCarryObj->setMoving();
+			if (facingLeft) currentCarryObj->throwObject(glm::vec2(float(-THROW_VELOCITY), 0.f));
+			else currentCarryObj->throwObject(glm::vec2(float(THROW_VELOCITY), 0.f));
+			currentCarryObj = nullptr;
+		}
+		else currentCarryObj->setPos(glm::vec2(posPlayer.x, posPlayer.y - currentCarryObj->getSize()));
 	}
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));

@@ -55,7 +55,9 @@ void TileMap::update(int deltaTime)
 	}
 	auto it = objects.cbegin();
 	while (it != objects.cend()) {
-		if (!(*it)->isActive()) objects.erase(it);
+		if (!(*it)->isActive()) {
+			it = objects.erase(it);
+		}
 		else ++it;
 	}
 }

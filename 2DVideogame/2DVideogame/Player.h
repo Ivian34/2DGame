@@ -35,9 +35,13 @@ private:
 	bool facingLeft;
 	bool carryObj = false;
 
+	//Collisions
 	bool collisions[2];
 	Object *lastInteractableObj;
 	Object *currentCarryObj;
+
+	// Timers
+	float throwCooldown = 0;
 };
 
 
