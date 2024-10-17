@@ -196,7 +196,7 @@ void Player::setPosition(const glm::vec2 &pos)
 }
 
 glm::ivec2 Player::getPosition() {
-	return posPlayer;
+	return posPlayer + tileMapDispl;
 }
 
 

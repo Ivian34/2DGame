@@ -6,11 +6,13 @@
 
 
 #define SCREEN_X 64
-#define SCREEN_Y 16
+#define SCREEN_Y 0
 
 #define INIT_PLAYER_X_TILES 4
-#define INIT_PLAYER_Y_TILES 22
+#define INIT_PLAYER_Y_TILES 6
 
+#define SCENE_WIDTH 256
+#define SCENE_HEIGHT 192
 
 Scene::Scene()
 {
@@ -31,13 +33,13 @@ Scene::~Scene()
 void Scene::init()
 {
 	initShaders();
-	map = TileMap::createTileMap("levels/level02.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
+	map = TileMap::createTileMap("levels/levelPractice.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	player = new Player();
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
 	camPosition = glm::vec2(0.0f, 0.0f);
-	projection = glm::ortho(camPosition.x, float(SCREEN_WIDTH) + camPosition.x, float(SCREEN_HEIGHT) + camPosition.y, camPosition.y);
+	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
 	currentTime = 0.0f;
 }
 
@@ -97,13 +99,13 @@ void Scene::updateCamera()
 {
 	glm::ivec2 pos = player->getPosition();
 
-	if ((pos.x - camPosition.x) < (SCREEN_WIDTH / 3)) {
-		camPosition.x = pos.x - SCREEN_WIDTH / 3;
+	if ((pos.x - camPosition.x) < (SCENE_WIDTH / 3)) {
+		camPosition.x = pos.x - SCENE_WIDTH / 3;
 	}
-	if ((pos.x - camPosition.x) > 2*(SCREEN_WIDTH / 3)) {
-		camPosition.x = pos.x - 2*(SCREEN_WIDTH / 3);
+	if ((pos.x - camPosition.x) > 2*(SCENE_WIDTH / 3)) {
+		camPosition.x = pos.x - 2*(SCENE_WIDTH / 3);
 	}
-	projection = glm::ortho(camPosition.x, float(SCREEN_WIDTH) + camPosition.x, float(SCREEN_HEIGHT) + camPosition.y, camPosition.y);
+	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
 }
 
 
