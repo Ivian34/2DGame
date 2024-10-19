@@ -301,9 +301,9 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size,in
 			if ((y2 >= objPos.y && y2 < (objPos.y + objSize)) &&
 				(x0 < (objPos.x + objSize) && objPos.x < x1))
 			{
-				if (*posY - tileSize * y + size.y <= 5)
+				if (*posY - tileSize * y + object_height <= 5)
 				{
-					*posY = tileSize * y - size.y;
+					*posY = tileSize * y - object_height;
 					*collision = true;
 					return true;
 				}
