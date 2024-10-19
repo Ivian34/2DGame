@@ -30,10 +30,12 @@ Scene::~Scene()
 
 void Scene::init()
 {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	initShaders();
 	map = TileMap::createTileMap("levels/level02.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	player = new Player();
-	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram);
+	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram, hitboxProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);
 	camPosition = glm::vec2(0.0f, 0.0f);
@@ -52,46 +54,83 @@ void Scene::update(int deltaTime)
 void Scene::render()
 {
 	glm::mat4 modelview;
+    glm::mat4 modelview2;
 
-	texProgram.use();
+    texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);
 	modelview = glm::mat4(1.0f);
 	texProgram.setUniformMatrix4f("modelview", modelview);
 	texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
-	map->render();
+
+	hitboxProgram.use();
+    hitboxProgram.setUniformMatrix4f("projection", projection);
+
+    texProgram.use();
+    map->render();
+
 	player->render();
 }
 
 void Scene::initShaders()
 {
-	Shader vShader, fShader;
+    Shader vShader, fShader;
 
-	vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
-	if(!vShader.isCompiled())
-	{
-		cout << "Vertex Shader Error" << endl;
-		cout << "" << vShader.log() << endl << endl;
-	}
-	fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
-	if(!fShader.isCompiled())
-	{
-		cout << "Fragment Shader Error" << endl;
-		cout << "" << fShader.log() << endl << endl;
-	}
-	texProgram.init();
-	texProgram.addShader(vShader);
-	texProgram.addShader(fShader);
-	texProgram.link();
-	if(!texProgram.isLinked())
-	{
-		cout << "Shader Linking Error" << endl;
-		cout << "" << texProgram.log() << endl << endl;
-	}
-	texProgram.bindFragmentOutput("outColor");
-	vShader.free();
-	fShader.free();
+    // Shader para texturas (el existente)
+    vShader.initFromFile(VERTEX_SHADER, "shaders/texture.vert");
+    if (!vShader.isCompiled())
+    {
+        cout << "Vertex Shader Error" << endl;
+        cout << "" << vShader.log() << endl << endl;
+    }
+    fShader.initFromFile(FRAGMENT_SHADER, "shaders/texture.frag");
+    if (!fShader.isCompiled())
+    {
+        cout << "Fragment Shader Error" << endl;
+        cout << "" << fShader.log() << endl << endl;
+    }
+    texProgram.init();
+    texProgram.addShader(vShader);
+    texProgram.addShader(fShader);
+    texProgram.link();
+    if (!texProgram.isLinked())
+    {
+        cout << "Shader Linking Error" << endl;
+        cout << "" << texProgram.log() << endl << endl;
+    }
+    texProgram.bindFragmentOutput("outColor");
+    vShader.free();
+    fShader.free();
+
+    // Shader para la hitbox (nuevo)
+    Shader hitboxVShader, hitboxFShader;
+
+    hitboxVShader.initFromFile(VERTEX_SHADER, "shaders/simple.vert");
+    if (!hitboxVShader.isCompiled())
+    {
+        cout << "Hitbox Vertex Shader Error" << endl;
+        cout << "" << hitboxVShader.log() << endl << endl;
+    }
+    hitboxFShader.initFromFile(FRAGMENT_SHADER, "shaders/simple.frag");
+    if (!hitboxFShader.isCompiled())
+    {
+        cout << "Hitbox Fragment Shader Error" << endl;
+        cout << "" << hitboxFShader.log() << endl << endl;
+    }
+    hitboxProgram.init();
+    hitboxProgram.addShader(hitboxVShader);
+    hitboxProgram.addShader(hitboxFShader);
+    hitboxProgram.link();
+    if (!hitboxProgram.isLinked())
+    {
+        cout << "Hitbox Shader Linking Error" << endl;
+        cout << "" << hitboxProgram.log() << endl << endl;
+    }
+    hitboxProgram.bindFragmentOutput("outColor");
+    hitboxVShader.free();
+    hitboxFShader.free();
 }
+
 
 void Scene::updateCamera()
 {

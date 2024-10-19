@@ -1,5 +1,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "ShaderProgram.h"
+#include <iostream>
 
 
 ShaderProgram::ShaderProgram()
@@ -12,6 +13,7 @@ ShaderProgram::ShaderProgram()
 void ShaderProgram::init()
 {
 	programId = glCreateProgram();
+	cout << "Program ID: " << programId << endl;
 }
 
 void ShaderProgram::addShader(const Shader &shader)
@@ -96,5 +98,10 @@ void ShaderProgram::setUniformMatrix4f(const string &uniformName, glm::mat4 &mat
 
 	if(location != -1)
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+GLuint ShaderProgram::getProgramId() const
+{
+	return programId;
 }
 

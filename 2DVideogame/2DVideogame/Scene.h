@@ -31,7 +31,7 @@ private:
 private:
 	TileMap *map;
 	Player *player;
-	ShaderProgram texProgram;
+	ShaderProgram texProgram, hitboxProgram;
 	float currentTime;
 	glm::mat4 projection;
 	glm::vec2 camPosition;

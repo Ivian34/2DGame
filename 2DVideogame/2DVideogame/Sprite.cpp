@@ -2,6 +2,7 @@
 #include <GL/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Sprite.h"
+#include <iostream>
 
 
 Sprite *Sprite::createSprite(const glm::vec2 &quadSize, const glm::vec2 &sizeInSpritesheet, Texture *spritesheet, ShaderProgram *program)
@@ -53,6 +54,9 @@ void Sprite::update(int deltaTime)
 void Sprite::render() const
 {
 	glm::mat4 modelview = glm::mat4(1.0f);
+
+	shaderProgram->use();
+
 	// Trasladar a la posición del sprite
 	modelview = glm::translate(modelview, glm::vec3(position.x, position.y, 0.f));
 
@@ -64,6 +68,7 @@ void Sprite::render() const
 
 	// Trasladar el origen de vuelta a la esquina superior izquierda
 	modelview = glm::translate(modelview, glm::vec3(-quadSizeSprite.x / 2.0f, -quadSizeSprite.y / 2.0f, 0.0f));
+	
 	shaderProgram->setUniformMatrix4f("modelview", modelview);
 	shaderProgram->setUniform2f("texCoordDispl", texCoordDispl.x, texCoordDispl.y);
 	glEnable(GL_TEXTURE_2D);
@@ -73,6 +78,7 @@ void Sprite::render() const
 	glEnableVertexAttribArray(texCoordLocation);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glDisable(GL_TEXTURE_2D);
+	glBindVertexArray(0);
 }
 
 void Sprite::free()

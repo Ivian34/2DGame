@@ -36,7 +36,7 @@ public:
 
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
-	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int *posY, bool *collision, Object*& interactedObj) const;
+	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int object_height, int *posY, bool *collision, Object*& interactedObj) const;
 
 	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 

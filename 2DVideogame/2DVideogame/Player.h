@@ -4,6 +4,7 @@
 
 #include "Sprite.h"
 #include "TileMap.h"
+#include "Hitbox.h"
 #include <vector>
 
 
@@ -15,30 +16,35 @@ class Player
 {
 
 public:
-	void init(const glm::ivec2 &tileMapPos, ShaderProgram &shaderProgram);
+	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, ShaderProgram& hitboxShaderProgram);
 	void update(int deltaTime);
 	void render();
-	
-	void setTileMap(TileMap *tileMap);
-	void setPosition(const glm::vec2 &pos);
+
+	void setTileMap(TileMap* tileMap);
+	void setPosition(const glm::vec2& pos);
+	void translatePosition(const glm::vec2& t);
+	void updateHitbox();
 	glm::ivec2 getPosition();
-	
+
 private:
 	bool bJumping;
-	glm::ivec2 tileMapDispl, posPlayer;
-	int jumpAngle, startY;
+	glm::ivec2 tileMapDispl, posPlayer, posHitbox;
+	int jumpAngle, startY, xhitboxPadding = 6, yhitboxPadding = 0, hitboxWidth = 20, hitboxHeight = 40;
 	Texture spritesheet;
-	Sprite *sprite;
-	TileMap *map;
-	
+	Sprite* sprite;
+	TileMap* map;
+	Hitbox* hitbox;
+
 	//Player states
 	bool facingLeft;
 	bool carryObj = false;
+	bool showHitbox;
+	bool prevF1KeyState;
 
 	//Collisions
 	bool collisions[2];
-	Object *lastInteractableObj;
-	Object *currentCarryObj;
+	Object* lastInteractableObj;
+	Object* currentCarryObj;
 
 	// Timers
 	float throwCooldown = 0;

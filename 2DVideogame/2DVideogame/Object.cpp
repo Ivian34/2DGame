@@ -51,7 +51,7 @@ void Object::update(int deltaTime)
 			}
 		}
 		else posObj.y += THROW_STEP;
-		if (map->collisionMoveDown(posObj, glm::ivec2(objSize), &posObj.y, false, collidedObj)) {
+		if (map->collisionMoveDown(posObj, glm::ivec2(objSize), objSize,&posObj.y, false, collidedObj)) {
 			objState = ObjectStates::INACTIVE;
 		}
 
