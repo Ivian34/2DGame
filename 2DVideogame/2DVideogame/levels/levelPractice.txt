@@ -1,0 +1,19 @@
+TILEMAP
+32 12 							-- Size of tile map in tiles
+16 16 							-- Tile size & block size
+images/SimpleTileset2.png 	-- Tilesheet
+8 5 								-- Number of tiles in tilesheet
+27                                                            25
+35                                                            33
+35                                                            33
+35                                                            33
+35                      303132                                33
+35                                                            33
+35                                                            33
+35                                                            33
+35                                                            33
+35                                                            33
+1526262626262626262626262626262626262626262626262626262626262616
+3434343434343434343434343434343434343434343434343434343434343434
+OBJECTS	
+END                                 -- Objects end

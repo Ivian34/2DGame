@@ -108,7 +108,10 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 			if (tile == ' ')
 				map[j*mapSize.x + i] = 0;
 			else
-				map[j*mapSize.x + i] = tile - int('0');
+				map[j*mapSize.x + i] = (tile - int('0'))*10;
+			fin.get(tile);
+			if (tile != ' ')
+				map[j*mapSize.x + i] += tile - int('0');
 		}
 		fin.get(tile);
 #ifndef _WIN32

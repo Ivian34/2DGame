@@ -36,7 +36,7 @@ enum PlayerCollisions
 void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, ShaderProgram& hitboxShaderProgram)
 {
 	bJumping = false;
-	spritesheet.loadFromFile("images/MM.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	spritesheet.loadFromFile("images/MM2.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), glm::vec2(float(PLAYER_WIDTH) / 488.f, float(PLAYER_HEIGHT) / 488.f), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(6); // Solo STAND y MOVE
 
@@ -336,7 +336,7 @@ void Player::translatePosition(const glm::vec2& t) {
 
 
 glm::ivec2 Player::getPosition() {
-	return posPlayer;
+	return posPlayer + tileMapDispl;
 }
 
 
