@@ -1,2 +1,2 @@
-#TargetFrameworkVersion=:PlatformToolSet=v140:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0.22621.0
-Debug|Win32|C:\Users\speci\source\repos\Ivian34\2DGame\2DVideogame\|
+#TargetFrameworkVersion=v4.0:PlatformToolSet=v140:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0.22621.0
+Debug|Win32|C:\Users\sergi\Desktop\UNI\VJ\2DGame\2DVideogame\|

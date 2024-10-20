@@ -45,17 +45,20 @@ private:
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
 
 private:
-	GLuint vao;
-	GLuint vbo;
-	GLint posLocation, texCoordLocation;
+	GLuint vao, backVao;
+	GLuint vbo, backVbo;
+	GLint posLocation, texCoordLocation, backPosLocation, backTexCoordLocation;
 	int nTiles;
-	glm::ivec2 position, mapSize, tilesheetSize;
+	glm::ivec2 position, mapSize, tilesheetSize, backTilesheetSize;
 	int tileSize, blockSize;
-	Texture tilesheet;
-	glm::vec2 tileTexSize;
-	int *map;
+	Texture tilesheet, backTilesheet;
+	glm::vec2 tileTexSize, backTileTexSize;
+	int *map, *backMap;
 
 	vector<Object*> objects;
+
+	//Level bools
+	bool hasBackmap = false;
 };
 
 
