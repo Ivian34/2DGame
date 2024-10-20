@@ -1,7 +1,7 @@
 TILEMAP
 32 12 							-- Size of tile map in tiles
 16 16 							-- Tile size & block size
-images/PracticeLvlTileset.png 	-- Tilesheet
+images/SimpleTileset2.png 	-- Tilesheet
 8 5 								-- Number of tiles in tilesheet
 27                                                            25
 35                                                            33
