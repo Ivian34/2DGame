@@ -1,7 +1,7 @@
 TILEMAP
 32 12 							-- Size of tile map in tiles
 16 16 							-- Tile size & block size
-images/SimpleTileset2.png 	-- Tilesheet
+images/PracticeLvlTileset.png 	-- Tilesheet
 8 5 								-- Number of tiles in tilesheet
 27                                                            25
 35                                                            33
@@ -16,4 +16,12 @@ images/SimpleTileset2.png 	-- Tilesheet
 1526262626262626262626262626262626262626262626262626262626262616
 3434343434343434343434343434343434343434343434343434343434343434
 OBJECTS	
+Stone                              -- Object name
+2 16                              -- Number of objects & object size
+images/blocks.png       -- Tilesheet
+4 4				--Tilesheet Size
+2 2                               -- Tile position
+10 9 
+16 9 
+END                                 -- Objects end
 END                                 -- Objects end

@@ -28,8 +28,8 @@ public:
 
 private:
 	bool bJumping;
-	glm::ivec2 tileMapDispl, posPlayer, posHitbox;
-	int jumpAngle, startY, xhitboxPadding = 6, yhitboxPadding = 0, hitboxWidth = 20, hitboxHeight = 40;
+	glm::ivec2 tileMapDispl, posPlayer, posHitbox, hitboxPadding;
+	int jumpAngle, startY, hitboxWidth = 20, hitboxHeight = 40;
 	float mov_acceleration_left, mov_acceleration_right;
 	float horizontalSpeed;
 	bool smashing;

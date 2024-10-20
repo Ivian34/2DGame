@@ -5,7 +5,7 @@
 
 #define THROW_ANGLE_STEP 4
 #define THROW_STEP 4
-#define INIT_THROW_ANGLE 90
+#define INIT_THROW_ANGLE 70
 
 
 enum TileAnims
