@@ -42,7 +42,7 @@ void TileMap::render() const
 		glBindVertexArray(backVao);
 		glEnableVertexAttribArray(backPosLocation);
 		glEnableVertexAttribArray(backTexCoordLocation);
-		glDrawArrays(GL_TRIANGLES, 0, 6 * nTiles);
+		glDrawArrays(GL_TRIANGLES, 0, 6 * backNTiles);
 		glDisable(GL_TEXTURE_2D);
 	}
 
@@ -117,24 +117,20 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 		for (int i = 0; i<mapSize.x; i++)
 		{
 			fin.get(tile);
-			cout << tile;
 			if (tile == ' ')
 				map[j*mapSize.x + i] = 0;
 			else
 				map[j*mapSize.x + i] = (tile - int('0'))*10;
 			fin.get(tile);
-			cout << tile;
 			if (tile != ' ')
 				map[j*mapSize.x + i] += tile - int('0');
 		}
 		fin.get(tile);
-		cout << tile << endl;
 #ifndef _WIN32
 		fin.get(tile);
 #endif
 	}
 	getline(fin, line);
-	cout << line << endl;
 	if (line.compare(0, 7, "BACKMAP") == 0) {
 		hasBackmap = true;
 		getline(fin, line);
@@ -259,7 +255,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 
 	if (hasBackmap) {
 		vertices.clear();
-		nTiles = 0;
+		backNTiles = 0;
 		halfTexel = glm::vec2(0.5f / backTilesheet.width(), 0.5f / backTilesheet.height());
 		for (int j = 0; j<mapSize.y; j++)
 		{
@@ -269,7 +265,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 				if (tile != 0)
 				{
 					// Non-empty tile
-					nTiles++;
+					backNTiles++;
 					posTile = glm::vec2(minCoords.x + i * tileSize, minCoords.y + j * tileSize);
 					texCoordTile[0] = glm::vec2(float((tile - 1) % backTilesheetSize.x) / backTilesheetSize.x, float((tile - 1) / backTilesheetSize.x) / backTilesheetSize.y);
 					texCoordTile[1] = texCoordTile[0] + backTileTexSize;
@@ -297,7 +293,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 		glBindVertexArray(backVao);
 		glGenBuffers(1, &backVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, backVbo);
-		glBufferData(GL_ARRAY_BUFFER, 24 * nTiles * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, 24 * backNTiles * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 		backPosLocation = program.bindVertexAttribute("position", 2, 4 * sizeof(float), 0);
 		backTexCoordLocation = program.bindVertexAttribute("texCoord", 2, 4 * sizeof(float), (void *)(2 * sizeof(float)));
 	}

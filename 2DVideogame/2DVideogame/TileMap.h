@@ -48,7 +48,7 @@ private:
 	GLuint vao, backVao;
 	GLuint vbo, backVbo;
 	GLint posLocation, texCoordLocation, backPosLocation, backTexCoordLocation;
-	int nTiles;
+	int nTiles, backNTiles;
 	glm::ivec2 position, mapSize, tilesheetSize, backTilesheetSize;
 	int tileSize, blockSize;
 	Texture tilesheet, backTilesheet;
