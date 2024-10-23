@@ -22,7 +22,7 @@ TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoo
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
-	//*texProgram = program;
+	texProgram = &program;
 	loadLevel(levelFile, minCoords, program);
 	prepareArrays(minCoords, program);
 }
@@ -548,12 +548,12 @@ bool TileMap::collisionStaticDown(const glm::ivec2 & pos, const glm::ivec2 & siz
 
 void TileMap::createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl, const glm::vec2 & itemPos)
 {
-	/*
+	
 	Object *newObj = new Object();
 	newObj->init(pos, "images/ObjectSprites.png", *texProgram, itemSize, spritesheetSize, spritesheetDispl);
 	newObj->setTexPosition(itemPos);
 	newObj->setTileMap(this);
 	newObj->setInteractable();
-	items.push_back(newObj); */
+	items.push_back(newObj); 
 }
 

@@ -37,6 +37,7 @@ void Object::update(int deltaTime)
 
 		Object *collidedObj = nullptr;
 		if ((velObj.x < 0) && map->collisionStaticHorizontal(posObj, glm::ivec2(objSize))) {
+			isDestroyed = true;
 			setDestroy();
 		}
 		if (bThrow) {
