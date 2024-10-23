@@ -31,13 +31,14 @@ void Object::update(int deltaTime)
 {
 	//sprite->update(deltaTime);
 	if (objState == ObjectStates::MOVING) {
+		bool isDestroyed = false;
+
 		posObj = glm::ivec2(posObj.x + velObj.x, posObj.y);
 
 		Object *collidedObj = nullptr;
 		if ((velObj.x < 0) && map->collisionStaticHorizontal(posObj, glm::ivec2(objSize))) {
-			objState = ObjectStates::INACTIVE;
+			setDestroy();
 		}
-
 		if (bThrow) {
 			throwAngle += THROW_ANGLE_STEP;
 			if (throwAngle == 180) {
@@ -48,8 +49,8 @@ void Object::update(int deltaTime)
 			}
 		}
 		else posObj.y += THROW_STEP;
-		if (map->collisionStaticDown(posObj, glm::ivec2(objSize))) {
-			objState = ObjectStates::INACTIVE;
+		if (!isDestroyed && map->collisionStaticDown(posObj, glm::ivec2(objSize))) {
+			setDestroy();
 		}
 
 		sprite->setPosition(glm::ivec2(posObj.x + spriteDispl.x, posObj.y + spriteDispl.y));
@@ -123,6 +124,11 @@ bool Object::canCollide() const
 	return objState == ObjectStates::INTERACTABLE || objState == ObjectStates::STATIC;
 }
 
+bool Object::hasItem()
+{
+	return bItem;
+}
+
 void Object::setInteractable()
 {
 	objState = ObjectStates::INTERACTABLE;
@@ -136,5 +142,17 @@ void Object::setHeld()
 void Object::setMoving()
 {
 	objState = ObjectStates::MOVING;
+}
+
+void Object::setDestroy()
+{
+	if (bItem) map->createItem(posObj, item, objSize, spriteSheetSize, spriteDispl, glm::ivec2(0, 1));
+	objState = ObjectStates::INACTIVE;
+}
+
+void Object::setContainItem(const string & i)
+{
+	bItem = true;
+	item = i;
 }
 

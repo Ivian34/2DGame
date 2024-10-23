@@ -22,6 +22,7 @@ TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoo
 
 TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
 {
+	//*texProgram = program;
 	loadLevel(levelFile, minCoords, program);
 	prepareArrays(minCoords, program);
 }
@@ -57,6 +58,9 @@ void TileMap::render() const
 	for (int i = 0; i < int(objects.size()); ++i) {
 		objects[i]->render();
 	}
+	for (int i = 0; i < int(items.size()); ++i) {
+		items[i]->render();
+	}
 }
 
 void TileMap::update(int deltaTime)
@@ -64,10 +68,22 @@ void TileMap::update(int deltaTime)
 	for (int i = 0; i < int(objects.size()); ++i) {
 		objects[i]->update(deltaTime);
 	}
+	for (int i = 0; i < int(items.size()); ++i) {
+		items[i]->update(deltaTime);
+	}
+
 	auto it = objects.cbegin();
 	while (it != objects.cend()) {
 		if (!(*it)->isActive()) {
 			it = objects.erase(it);
+		}
+		else ++it;
+	}
+
+	it = items.cbegin();
+	while (it != items.cend()) {
+		if (!(*it)->isActive()) {
+			it = items.erase(it);
 		}
 		else ++it;
 	}
@@ -173,9 +189,13 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 		while (line.compare(0, 3, "END") != 0) {
 			int objN, objSize;
 			glm::ivec2 sheetSize, tilePos;
+			string item;
 			getline(fin, line);
 			sstream.str(line);
 			sstream >> objN >> objSize;
+			getline(fin, line);
+			sstream.str(line);
+			sstream >> item;
 			getline(fin, line);
 			sstream.str(line);
 			sstream >> tilesheetFile;
@@ -195,6 +215,11 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 				newObj->setTexPosition(tilePos);
 				newObj->setTileMap(this);
 				newObj->setInteractable();
+
+				if (item.compare(0, 2, "NO") != 0) {
+					if (item.compare(0, 4, "CAKE") == 0) newObj->setContainItem("CAKE");
+				}
+
 				objects.push_back(newObj);
 			}
 			getline(fin, line);
@@ -407,6 +432,7 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 				if (*posY - tileSize * y + object_height <= 5)
 				{
 					*posY = tileSize * y - object_height;
+					interactedObj = objects[i];
 					*collision = true;
 					return true;
 				}
@@ -518,5 +544,16 @@ bool TileMap::collisionStaticDown(const glm::ivec2 & pos, const glm::ivec2 & siz
 	}
 
 	return false;
+}
+
+void TileMap::createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl, const glm::vec2 & itemPos)
+{
+	/*
+	Object *newObj = new Object();
+	newObj->init(pos, "images/ObjectSprites.png", *texProgram, itemSize, spritesheetSize, spritesheetDispl);
+	newObj->setTexPosition(itemPos);
+	newObj->setTileMap(this);
+	newObj->setInteractable();
+	items.push_back(newObj); */
 }
 

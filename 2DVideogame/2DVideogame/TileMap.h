@@ -42,6 +42,8 @@ public:
 	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionStaticDown(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 
+	void createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl, const glm::vec2 & itemPos);
+
 private:
 	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
@@ -57,7 +59,8 @@ private:
 	glm::vec2 tileTexSize, backTileTexSize;
 	int *map, *backMap;
 
-	vector<Object*> objects;
+	vector<Object*> objects, items;
+	ShaderProgram *texProgram;
 
 	//Level bools
 	bool hasBackmap = false;

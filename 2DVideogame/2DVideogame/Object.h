@@ -30,11 +30,14 @@ public:
 	bool isActive() const;
 	bool isInteractible() const;
 	bool canCollide() const;
+	bool hasItem();
 
 	//State setters
 	void setInteractable();
 	void setHeld();
 	void setMoving();
+	void setDestroy();
+	void setContainItem(const string &i);
 
 private:
 	glm::ivec2 posObj, spriteSheetSize, spriteDispl;
@@ -44,9 +47,12 @@ private:
 	int objSize, throwAngle, startY;
 	TileMap *map;
 
+	string item;
+
 	ObjectStates objState = ObjectStates::STATIC;
 
 	bool bThrow = false;
+	bool bItem = false;
 };
 
 

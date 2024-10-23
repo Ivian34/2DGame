@@ -19,9 +19,13 @@
 #define THROW_COOLDOWN 1
 #define THROW_VELOCITY 10
 
+//Run
 #define ACCELERATION 0.2f
 #define MAX_ACC 7.f
 #define MAX_ANIM_SPEED 20.f
+
+//Smash
+#define SMASH_ANGLE 30
 
 enum PlayerAnims
 {
@@ -180,9 +184,13 @@ void Player::update(int deltaTime)
 	}
 	else {
 		if (Game::instance().getKey(GLFW_KEY_LEFT)) {
+			facingLeft = true;
+			sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
 			translatePosition(glm::ivec2(-2, 0));
 		}
 		else if (Game::instance().getKey(GLFW_KEY_RIGHT)){
+			facingLeft = false;
+			sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
 			translatePosition(glm::ivec2(2, 0));
 		}
 	}
@@ -192,7 +200,7 @@ void Player::update(int deltaTime)
 		jumpAngle += JUMP_ANGLE_STEP;
 		mov_acceleration_left = -1;
 		mov_acceleration_right = 1;
-		if (Game::instance().getKey(GLFW_KEY_DOWN))
+		if (Game::instance().getKey(GLFW_KEY_DOWN) && !smashing && !carryObj)
 		{
 			if (sprite->animation() != SMASH) {
 				hitboxPadding.x = 6, hitboxPadding.y = 20, hitboxWidth = 20, hitboxHeight = 20;
@@ -215,7 +223,7 @@ void Player::update(int deltaTime)
 				updateHitbox();
 				if (jumpAngle > 90)
 				{ // Falling
-					if (sprite->animation() != FALL) {
+					if (sprite->animation() != FALL && !smashing ) {
 						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 						updateHitbox();
 						sprite->changeAnimation(FALL);
@@ -226,7 +234,7 @@ void Player::update(int deltaTime)
 				}
 				else
 				{
-					if (sprite->animation() != JUMP) {
+					if (sprite->animation() != JUMP && !smashing) {
 						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 						updateHitbox();
 						sprite->changeAnimation(JUMP);
@@ -243,7 +251,16 @@ void Player::update(int deltaTime)
 		updateHitbox();
 		if (condition)
 		{
-			smashing = false;
+			if (smashing && collisions[OBJD]) {
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				bJumping = true;
+				jumpAngle = SMASH_ANGLE;
+				startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));;
+				lastInteractableObj->setDestroy();
+			}
+			else smashing = false;
+			
 			if (Game::instance().getKey(GLFW_KEY_UP))
 			{
 				mov_acceleration_left = -1;
@@ -265,7 +282,7 @@ void Player::update(int deltaTime)
 			}
 		}
 		else { //si estas cayendo
-			if (Game::instance().getKey(GLFW_KEY_DOWN))
+			if (Game::instance().getKey(GLFW_KEY_DOWN) && !smashing)
 			{
 				if (sprite->animation() != SMASH) {
 					hitboxPadding.x = 6, hitboxPadding.y = 20, hitboxWidth = 20, hitboxHeight = 20;
