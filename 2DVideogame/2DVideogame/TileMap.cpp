@@ -124,8 +124,8 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 			fin.get(tile);
 			if (tile != ' ')
 				map[j*mapSize.x + i] += tile - int('0');
+			fin.get(tile);
 		}
-		fin.get(tile);
 #ifndef _WIN32
 		fin.get(tile);
 #endif
@@ -159,8 +159,8 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 				fin.get(tile);
 				if (tile != ' ')
 					backMap[j*mapSize.x + i] += tile - int('0');
+				fin.get(tile);
 			}
-			fin.get(tile);
 #ifndef _WIN32
 			fin.get(tile);
 #endif
@@ -210,7 +210,7 @@ void TileMap::prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program)
 	int tile;
 	glm::vec2 posTile, texCoordTile[2], halfTexel;
 	vector<float> vertices;
-
+	
 	nTiles = 0;
 	halfTexel = glm::vec2(0.5f / tilesheet.width(), 0.5f / tilesheet.height());
 	for (int j = 0; j<mapSize.y; j++)
@@ -378,7 +378,7 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size,in
 	{
 		if (map[y*mapSize.x + x] != 0)
 		{
-			if (*posY - tileSize * y + object_height <= 4)
+			if (*posY - tileSize * y + object_height <= 5)
 			{
 				*posY = tileSize * y - object_height;
 				return true;
