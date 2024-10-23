@@ -52,6 +52,6 @@ Stone                              -- Object name
 images/ObjectSprites.png       -- Tilesheet
 2 2				--Tilesheet Size
 0 0                               -- Tile position
-10 9 
-16 9 
+10 15 
+16 15 
 END                                 -- Objects end

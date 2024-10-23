@@ -119,7 +119,7 @@ void Player::update(int deltaTime)
 			sprite->setAnimationSpeed(MOVE, min(6 + (-mov_acceleration_left), MAX_ANIM_SPEED)); //velocidad de animacion
 			mov_acceleration_left -= ACCELERATION;
 
-			if (map->collisionMoveLeft(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], lastInteractableObj))
+			if (map->collisionMoveLeft(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
 			{
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
@@ -145,7 +145,7 @@ void Player::update(int deltaTime)
 			sprite->setAnimationSpeed(MOVE, min(6 + mov_acceleration_right, MAX_ANIM_SPEED));
 			mov_acceleration_right += ACCELERATION;
 
-			if (map->collisionMoveRight(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], lastInteractableObj))
+			if (map->collisionMoveRight(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
 			{
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;

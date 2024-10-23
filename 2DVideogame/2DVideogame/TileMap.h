@@ -34,11 +34,13 @@ public:
 
 	int getTileSize() const { return tileSize; }
 
-	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
-	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, Object*& interactedObj) const;
+	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, int *posX, Object*& interactedObj) const;
+	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, int *posX, Object*& interactedObj) const;
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int object_height, int *posY, bool *collision, Object*& interactedObj) const;
 
+	bool collisionStaticHorizontal(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
+	bool collisionStaticDown(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 
 private:
 	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);

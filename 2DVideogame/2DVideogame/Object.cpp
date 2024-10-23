@@ -34,10 +34,7 @@ void Object::update(int deltaTime)
 		posObj = glm::ivec2(posObj.x + velObj.x, posObj.y);
 
 		Object *collidedObj = nullptr;
-		if ((velObj.x < 0) && map->collisionMoveLeft(posObj, glm::ivec2(objSize), false, collidedObj)) {
-			objState = ObjectStates::INACTIVE;
-		}
-		else if (map->collisionMoveRight(posObj, glm::ivec2(objSize, objSize), false, collidedObj)) {
+		if ((velObj.x < 0) && map->collisionStaticHorizontal(posObj, glm::ivec2(objSize))) {
 			objState = ObjectStates::INACTIVE;
 		}
 
@@ -51,7 +48,7 @@ void Object::update(int deltaTime)
 			}
 		}
 		else posObj.y += THROW_STEP;
-		if (map->collisionMoveDown(posObj, glm::ivec2(objSize), objSize,&posObj.y, false, collidedObj)) {
+		if (map->collisionStaticDown(posObj, glm::ivec2(objSize))) {
 			objState = ObjectStates::INACTIVE;
 		}
 
