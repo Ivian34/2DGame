@@ -546,14 +546,17 @@ bool TileMap::collisionStaticDown(const glm::ivec2 & pos, const glm::ivec2 & siz
 	return false;
 }
 
-void TileMap::createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl, const glm::vec2 & itemPos)
+void TileMap::createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl)
 {
 	
 	Object *newObj = new Object();
 	newObj->init(pos, "images/ObjectSprites.png", *texProgram, itemSize, spritesheetSize, spritesheetDispl);
-	newObj->setTexPosition(itemPos);
+	
+	if (type.compare(0, 4, "CAKE") == 0) newObj->setTexPosition(glm::ivec2(0, 1));
+
 	newObj->setTileMap(this);
-	newObj->setInteractable();
+	newObj->setIsItem(type);
+	newObj->throwObject(glm::vec2(0.f));
 	items.push_back(newObj); 
 }
 

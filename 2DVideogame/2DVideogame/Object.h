@@ -7,6 +7,8 @@ class TileMap;
 
 enum class ObjectStates { INTERACTABLE, STATIC, HELD, MOVING, DESTROY, INACTIVE, NSTATES };
 
+enum class ObjectType {TROWABLE, ITEM, NTYPES};
+
 class Object
 {
 
@@ -14,6 +16,9 @@ public:
 	void init(const glm::vec2 &pos, const string &filename, ShaderProgram &shaderProgram, int tileSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl);
 	void update(int deltaTime);
 	void render() const;
+
+	void updateTrowable(int deltaTime);
+	void updateItem(int deltaTime);
 
 	void setTileMap(TileMap *tileMap);
 	void setTexPosition(const glm::vec2 &texturePos);
@@ -38,6 +43,7 @@ public:
 	void setMoving();
 	void setDestroy();
 	void setContainItem(const string &i);
+	void setIsItem(const string &type);
 
 private:
 	glm::ivec2 posObj, spriteSheetSize, spriteDispl;
@@ -49,10 +55,11 @@ private:
 
 	string item;
 
+	ObjectType objType = ObjectType::TROWABLE;
 	ObjectStates objState = ObjectStates::STATIC;
 
 	bool bThrow = false;
-	bool bItem = false;
+	bool bHasItem = false;
 };
 
 

@@ -6,6 +6,7 @@
 #define THROW_ANGLE_STEP 4
 #define THROW_STEP 4
 #define INIT_THROW_ANGLE 70
+#define INIT_ITEM_ANGLE 30
 
 
 enum TileAnims
@@ -30,6 +31,21 @@ void Object::init(const glm::vec2 &pos, const string &filename, ShaderProgram &s
 void Object::update(int deltaTime)
 {
 	//sprite->update(deltaTime);
+	switch (objType) {
+	case ObjectType::TROWABLE: updateTrowable(deltaTime); break;
+	case ObjectType::ITEM: updateItem(deltaTime); break;
+	}
+
+	
+}
+
+void Object::render() const
+{
+	sprite->render();
+}
+
+void Object::updateTrowable(int deltaTime)
+{
 	if (objState == ObjectStates::MOVING) {
 		bool isDestroyed = false;
 
@@ -40,6 +56,7 @@ void Object::update(int deltaTime)
 			isDestroyed = true;
 			setDestroy();
 		}
+
 		if (bThrow) {
 			throwAngle += THROW_ANGLE_STEP;
 			if (throwAngle == 180) {
@@ -50,6 +67,7 @@ void Object::update(int deltaTime)
 			}
 		}
 		else posObj.y += THROW_STEP;
+
 		if (!isDestroyed && map->collisionStaticDown(posObj, glm::ivec2(objSize))) {
 			setDestroy();
 		}
@@ -58,9 +76,25 @@ void Object::update(int deltaTime)
 	}
 }
 
-void Object::render() const
+void Object::updateItem(int deltaTime)
 {
-	sprite->render();
+	if (objState == ObjectStates::MOVING) {
+
+		if (bThrow) {
+			throwAngle += THROW_ANGLE_STEP;
+			if (throwAngle == 180 - INIT_ITEM_ANGLE) {
+				bThrow = false;
+			}
+			else {
+				posObj.y = int(startY - 96 * sin(3.14159f * throwAngle / 180.0f));
+			}
+		}
+		else {
+			posObj.y += THROW_STEP;
+			if (map->collisionStaticDown(posObj, glm::ivec2(objSize))) setInteractable();
+		}
+		sprite->setPosition(glm::ivec2(posObj.x + spriteDispl.x, posObj.y + spriteDispl.y));
+	}
 }
 
 void Object::setTileMap(TileMap * tileMap)
@@ -106,7 +140,8 @@ void Object::throwObject(const glm::vec2 & v)
 	setMoving();
 	bThrow = true;
 	setVelocity(v);
-	throwAngle = INIT_THROW_ANGLE;
+	if (objType == ObjectType::ITEM) throwAngle = INIT_ITEM_ANGLE;
+	else throwAngle = INIT_THROW_ANGLE;
 	startY = posObj.y + int(96 * sin(3.14159f * throwAngle / 180.0f));
 }
 
@@ -127,7 +162,7 @@ bool Object::canCollide() const
 
 bool Object::hasItem()
 {
-	return bItem;
+	return bHasItem;
 }
 
 void Object::setInteractable()
@@ -147,13 +182,19 @@ void Object::setMoving()
 
 void Object::setDestroy()
 {
-	if (bItem) map->createItem(posObj, item, objSize, spriteSheetSize, spriteDispl, glm::ivec2(0, 1));
+	if (bHasItem) map->createItem(posObj, item, objSize, spriteSheetSize, spriteDispl);
 	objState = ObjectStates::INACTIVE;
 }
 
 void Object::setContainItem(const string & i)
 {
-	bItem = true;
+	bHasItem = true;
 	item = i;
+}
+
+void Object::setIsItem(const string &type)
+{
+	objType = ObjectType::ITEM;
+	item = type;
 }
 

@@ -42,7 +42,7 @@ public:
 	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionStaticDown(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 
-	void createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl, const glm::vec2 & itemPos);
+	void createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl);
 
 private:
 	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
