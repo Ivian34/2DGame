@@ -23,7 +23,9 @@ public:
 	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, ShaderProgram& hitboxShaderProgram);
 	void update(int deltaTime);
 	void updateRun(int deltaTime);
+	void updateCrouch(int deltaTime);
 	void updateSmashing(int deltaTime);
+	void updateCarry(int deltaTime);
 	void render();
 
 	void setTileMap(TileMap* tileMap);
