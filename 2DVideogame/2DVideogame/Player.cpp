@@ -28,7 +28,7 @@
 //Smash
 #define SMASH_ANGLE 30
 
-enum PlayerAnims
+enum PlayerAnimations
 {
 	STAND, MOVE, CROUCH, JUMP, FALL, SMASH
 };
@@ -103,6 +103,7 @@ void Player::update(int deltaTime)
 	//Timers
 	throwCooldown -= deltaTime / 1000.f;
 
+	//Collisions
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
 	lastInteractableObj = nullptr;
 
@@ -334,6 +335,254 @@ void Player::update(int deltaTime)
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 	updateHitbox();
+}
+
+void Player::updateRun(int deltaTime)
+{
+		if (Game::instance().getKey(GLFW_KEY_LEFT))
+		{
+			facingLeft = true;
+			sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
+			mov_acceleration_right = 1;
+			if (sprite->animation() != MOVE)
+			{
+				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+				updateHitbox();
+				mov_acceleration_left = -1;
+				sprite->changeAnimation(MOVE);
+			}
+			translatePosition(glm::ivec2(-INIT_SPEED + max(mov_acceleration_left, -MAX_ACC), 0));	//aceleracion
+			sprite->setAnimationSpeed(MOVE, min(6 + (-mov_acceleration_left), MAX_ANIM_SPEED)); //velocidad de animacion
+			mov_acceleration_left -= ACCELERATION;
+
+			if (map->collisionMoveLeft(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
+			{
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				translatePosition(glm::ivec2(3, 0));
+				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+				updateHitbox();
+				sprite->changeAnimation(STAND);
+			}
+		}
+		else if (Game::instance().getKey(GLFW_KEY_RIGHT))
+		{
+			facingLeft = false;
+			sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
+			mov_acceleration_left = -1;
+			if (sprite->animation() != MOVE)
+			{
+				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+				updateHitbox();
+				mov_acceleration_right = 1;
+				sprite->changeAnimation(MOVE);
+			}
+			translatePosition(glm::ivec2(INIT_SPEED + min(mov_acceleration_right, MAX_ACC), 0));
+			sprite->setAnimationSpeed(MOVE, min(6 + mov_acceleration_right, MAX_ANIM_SPEED));
+			mov_acceleration_right += ACCELERATION;
+
+			if (map->collisionMoveRight(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
+			{
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				translatePosition(glm::ivec2(-3, 0));
+				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+				updateHitbox();
+				sprite->changeAnimation(STAND);
+			}
+		}
+
+		else if (Game::instance().getKey(GLFW_KEY_DOWN))
+		{
+			if (sprite->animation() != CROUCH) {
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				hitboxPadding.x = 6, hitboxPadding.y = 20; hitboxWidth = 20, hitboxHeight = 20;
+				updateHitbox();
+				sprite->changeAnimation(CROUCH);
+				playerState = PlayerStates::S_CROUCH;
+			}
+		}
+		else
+		{
+			if (sprite->animation() != STAND) {
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+				updateHitbox();
+				sprite->changeAnimation(STAND);
+			}
+		}
+	
+
+	if (bJumping)
+	{
+		jumpAngle += JUMP_ANGLE_STEP;
+		mov_acceleration_left = -1;
+		mov_acceleration_right = 1;
+		if (Game::instance().getKey(GLFW_KEY_DOWN))
+		{
+			if (sprite->animation() != SMASH) {
+				hitboxPadding.x = 6, hitboxPadding.y = 20, hitboxWidth = 20, hitboxHeight = 20;
+				updateHitbox();
+				sprite->changeAnimation(SMASH);
+				bJumping = false;
+				playerState = PlayerStates::S_SMASH;
+			}
+		}
+		else {
+			if (jumpAngle == 180)
+			{
+				bJumping = false;
+				posPlayer.y = startY;
+				updateHitbox();
+			}
+			else
+			{
+				posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
+				updateHitbox();
+				if (jumpAngle > 90)
+				{ // Falling
+					if (sprite->animation() != FALL) {
+						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+						updateHitbox();
+						sprite->changeAnimation(FALL);
+					}
+
+					bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+					updateHitbox();
+				}
+				else
+				{
+					if (sprite->animation() != JUMP) {
+						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+						updateHitbox();
+						sprite->changeAnimation(JUMP);
+					}
+
+				}
+			}
+		}
+	}
+	else
+	{
+		translatePosition(glm::ivec2(0, FALL_STEP));
+		bool condition = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+		updateHitbox();
+		if (condition)
+		{
+			if (Game::instance().getKey(GLFW_KEY_UP))
+			{
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				bJumping = true;
+				jumpAngle = 0;
+				startY = posPlayer.y;
+			}
+			else if (Game::instance().getKey(GLFW_KEY_Z)) {
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				if (lastInteractableObj != nullptr && collisions[OBJH] && lastInteractableObj->canBeMoved(posPlayer.y + PLAYER_HEIGHT)) {
+					carryObj = true;
+					currentCarryObj = lastInteractableObj;
+					currentCarryObj->setPos(glm::vec2(posPlayer.x + hitboxPadding.x, posPlayer.y + hitboxPadding.y - currentCarryObj->getSize() / 2.f));
+					currentCarryObj->setHeld();
+					throwCooldown = float(THROW_COOLDOWN);
+					playerState = PlayerStates::S_CARRY;
+				}
+			}
+		}
+		else { //si estas cayendo
+			if (Game::instance().getKey(GLFW_KEY_DOWN) && !smashing)
+			{
+				if (sprite->animation() != SMASH) {
+					hitboxPadding.x = 6, hitboxPadding.y = 20, hitboxWidth = 20, hitboxHeight = 20;
+					updateHitbox();
+					sprite->changeAnimation(SMASH);
+					smashing = true;
+				}
+			}
+		}
+	}
+}
+
+void Player::updateSmashing(int deltaTime) {
+
+	if (Game::instance().getKey(GLFW_KEY_LEFT)) {
+		facingLeft = true;
+		sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
+		translatePosition(glm::ivec2(-INIT_SPEED, 0));
+		if (map->collisionMoveLeft(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
+		{
+			mov_acceleration_left = -1;
+			mov_acceleration_right = 1;
+			translatePosition(glm::ivec2(3, 0));
+			hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+			updateHitbox();
+			if (!smashing) sprite->changeAnimation(STAND);
+		}
+	}
+	else if (Game::instance().getKey(GLFW_KEY_RIGHT)) {
+		facingLeft = false;
+		sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
+		translatePosition(glm::ivec2(INIT_SPEED, 0));
+		if (map->collisionMoveRight(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
+		{
+			mov_acceleration_left = -1;
+			mov_acceleration_right = 1;
+			translatePosition(glm::ivec2(-3, 0));
+			hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+			updateHitbox();
+			if (!smashing) sprite->changeAnimation(STAND);
+		}
+	}
+
+	if (bJumping)
+	{
+		jumpAngle += JUMP_ANGLE_STEP;
+		mov_acceleration_left = -1;
+		mov_acceleration_right = 1;
+		if (jumpAngle == 180)
+		{
+			bJumping = false;
+			posPlayer.y = startY;
+			updateHitbox();
+		}
+		else
+		{
+			posPlayer.y = int(startY - 96 * sin(3.14159f * jumpAngle / 180.f));
+			updateHitbox();
+			
+			if (jumpAngle > 90)
+			{ // Falling
+
+				bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+				if (map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj)) {
+					bJumping = false;
+					playerState = PlayerStates::S_RUN;
+				}
+				updateHitbox();
+			}
+		}
+	}
+	else
+	{
+		translatePosition(glm::ivec2(0, FALL_STEP));
+		bool condition = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+		updateHitbox();
+		if (condition)
+		{
+			if (collisions[OBJD]) {
+				mov_acceleration_left = -1;
+				mov_acceleration_right = 1;
+				bJumping = true;
+				jumpAngle = SMASH_ANGLE;
+				startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));;
+				lastInteractableObj->setDestroy();
+			}
+			else playerState = PlayerStates::S_RUN;
+		}
+	}
 }
 
 void Player::render()

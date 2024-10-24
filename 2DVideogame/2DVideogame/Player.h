@@ -11,6 +11,10 @@
 // Player is basically a Sprite that represents the player. As such it has
 // all properties it needs to track its movement, jumping, and collisions.
 
+enum class PlayerStates
+{
+	S_RUN, S_CROUCH, S_SMASH, S_CARRY, NSTATES
+};
 
 class Player
 {
@@ -18,6 +22,8 @@ class Player
 public:
 	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, ShaderProgram& hitboxShaderProgram);
 	void update(int deltaTime);
+	void updateRun(int deltaTime);
+	void updateSmashing(int deltaTime);
 	void render();
 
 	void setTileMap(TileMap* tileMap);
@@ -39,6 +45,7 @@ private:
 	Hitbox* hitbox;
 
 	//Player states
+	PlayerStates playerState = PlayerStates::S_RUN;
 	bool facingLeft;
 	bool carryObj = false;
 	bool showHitbox;
