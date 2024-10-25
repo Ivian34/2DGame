@@ -4,6 +4,7 @@
 #include <vector>
 #include "TileMap.h"
 #include "Object.h"
+#include "TreeEnemy.h"
 
 using namespace std;
 
@@ -226,6 +227,13 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 		}
 	}
 	fin.close();
+
+	TreeEnemy *enemy = new TreeEnemy();
+	enemy->init(minCoords, program);
+	enemy->setPosition(glm::vec2(8 * tileSize, 7 * tileSize));
+	enemy->setTileMap(this);
+	treeEnemies.push_back(enemy);
+
 
 	return true;
 }

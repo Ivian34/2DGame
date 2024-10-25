@@ -50,6 +50,7 @@ private:
 	PlayerStates playerState = PlayerStates::S_RUN;
 	bool facingLeft;
 	bool carryObj = false;
+
 	bool showHitbox;
 	bool prevF1KeyState;
 

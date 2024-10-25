@@ -15,6 +15,7 @@
 
 
 class Object;
+class TreeEnemy;
 
 class TileMap
 {
@@ -60,6 +61,9 @@ private:
 	int *map, *backMap;
 
 	vector<Object*> objects, items;
+
+	vector<TreeEnemy*> treeEnemies;
+
 	ShaderProgram *texProgram;
 
 	//Level bools
