@@ -15,6 +15,15 @@
 #define PLAYER_WIDTH 32
 #define PLAYER_HEIGHT 40
 
+//Hitbox
+#define HITBOX_PADDING_X 8
+#define HITBOX_PADDING_Y 8
+#define HITBOX_SIZE_X 16
+#define HITBOX_SIZE_Y 32
+
+#define HITBOX_PADDING_SMALL_Y 20
+#define HITBOX_SIZE_SMALL_Y 20
+
 //Trowing
 #define THROW_COOLDOWN 1
 #define THROW_VELOCITY 10
@@ -89,9 +98,9 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 	smashing = false;
 
 	// Inicializar la hitbox
-	hitboxPadding = glm::ivec2(6, 8);
-	hitboxWidth = 20;
-	hitboxHeight = 32;
+	hitboxPadding = glm::ivec2(HITBOX_PADDING_X, HITBOX_PADDING_Y);
+	hitboxWidth = HITBOX_SIZE_X;
+	hitboxHeight = HITBOX_SIZE_Y;
 	updateHitbox();
 
 	// Crear la hitbox
@@ -127,6 +136,7 @@ void Player::update(int deltaTime) {
 
 void Player::updateRun(int deltaTime)
 {
+	hitboxPadding.y = HITBOX_PADDING_Y, hitboxHeight = HITBOX_SIZE_Y;
 		if (Game::instance().getKey(GLFW_KEY_LEFT))
 		{
 			facingLeft = true;
@@ -134,7 +144,6 @@ void Player::updateRun(int deltaTime)
 			mov_acceleration_right = 1;
 			if (sprite->animation() != MOVE && !bJumping)
 			{
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(MOVE);
 			}
@@ -146,7 +155,6 @@ void Player::updateRun(int deltaTime)
 			{
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(STAND);
 			}
@@ -158,7 +166,6 @@ void Player::updateRun(int deltaTime)
 			mov_acceleration_left = -1;
 			if (sprite->animation() != MOVE && !bJumping)
 			{
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(MOVE);
 			}
@@ -170,7 +177,6 @@ void Player::updateRun(int deltaTime)
 			{
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(STAND);
 			}
@@ -181,7 +187,6 @@ void Player::updateRun(int deltaTime)
 			if (sprite->animation() != CROUCH) {
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
-				hitboxPadding.x = 6, hitboxPadding.y = 20; hitboxWidth = 20, hitboxHeight = 20;
 				updateHitbox();
 				sprite->changeAnimation(CROUCH);
 
@@ -192,7 +197,6 @@ void Player::updateRun(int deltaTime)
 			if (sprite->animation() != STAND) {
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(STAND);
 			}
@@ -208,7 +212,6 @@ void Player::updateRun(int deltaTime)
 		{
 			playerState = PlayerStates::S_SMASH;
 			if (sprite->animation() != SMASH) {
-				hitboxPadding.x = 6, hitboxPadding.y = 20, hitboxWidth = 20, hitboxHeight = 20;
 				updateHitbox();
 				sprite->changeAnimation(SMASH);
 				bJumping = false;
@@ -228,7 +231,6 @@ void Player::updateRun(int deltaTime)
 				if (jumpAngle > 90)
 				{ // Falling
 					if (sprite->animation() != FALL) {
-						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 						updateHitbox();
 						sprite->changeAnimation(FALL);
 					}
@@ -239,7 +241,6 @@ void Player::updateRun(int deltaTime)
 				else
 				{
 					if (sprite->animation() != JUMP) {
-						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 						updateHitbox();
 						sprite->changeAnimation(JUMP);
 					}
@@ -279,7 +280,6 @@ void Player::updateRun(int deltaTime)
 			if (Game::instance().getKey(GLFW_KEY_DOWN))
 			{
 				if (sprite->animation() != SMASH) {
-					hitboxPadding.x = 6, hitboxPadding.y = 20, hitboxWidth = 20, hitboxHeight = 20;
 					updateHitbox();
 					sprite->changeAnimation(SMASH);
 					smashing = true;
@@ -291,6 +291,7 @@ void Player::updateRun(int deltaTime)
 
 void Player::updateCrouch(int deltaTime)
 {
+	hitboxPadding.y = HITBOX_PADDING_SMALL_Y, hitboxHeight = HITBOX_SIZE_SMALL_Y;
 	if (!Game::instance().getKey(GLFW_KEY_DOWN))
 	{
 		playerState = PlayerStates::S_RUN;
@@ -299,7 +300,6 @@ void Player::updateCrouch(int deltaTime)
 		if (sprite->animation() != CROUCH) {
 			mov_acceleration_left = -1;
 			mov_acceleration_right = 1;
-			hitboxPadding.x = 6, hitboxPadding.y = 20; hitboxWidth = 20, hitboxHeight = 20;
 			updateHitbox();
 			sprite->changeAnimation(CROUCH);
 
@@ -309,6 +309,8 @@ void Player::updateCrouch(int deltaTime)
 
 void Player::updateSmashing(int deltaTime) {
 
+	hitboxPadding.y = HITBOX_PADDING_SMALL_Y, hitboxHeight = HITBOX_SIZE_SMALL_Y;
+
 	if (Game::instance().getKey(GLFW_KEY_LEFT)) {
 		facingLeft = true;
 		sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
@@ -317,7 +319,7 @@ void Player::updateSmashing(int deltaTime) {
 		{
 			mov_acceleration_left = -1;
 			mov_acceleration_right = 1;
-			hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+			
 			updateHitbox();
 		}
 	}
@@ -329,7 +331,6 @@ void Player::updateSmashing(int deltaTime) {
 		{
 			mov_acceleration_left = -1;
 			mov_acceleration_right = 1;
-			hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 			updateHitbox();
 		}
 	}
@@ -394,6 +395,7 @@ void Player::updateSmashing(int deltaTime) {
 
 void Player::updateCarry(int deltaTime)
 {
+	hitboxPadding.y = HITBOX_PADDING_Y, hitboxHeight = HITBOX_SIZE_Y;
 		if (Game::instance().getKey(GLFW_KEY_LEFT))
 		{
 			facingLeft = true;
@@ -401,7 +403,7 @@ void Player::updateCarry(int deltaTime)
 			mov_acceleration_right = 1;
 			if (sprite->animation() != MOVE && !bJumping)
 			{
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
+				
 				updateHitbox();
 				//mov_acceleration_left = -1;
 				sprite->changeAnimation(MOVE);
@@ -414,7 +416,6 @@ void Player::updateCarry(int deltaTime)
 			{
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(STAND);
 			}
@@ -426,7 +427,6 @@ void Player::updateCarry(int deltaTime)
 			mov_acceleration_left = -1;
 			if (sprite->animation() != MOVE && !bJumping)
 			{
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				//mov_acceleration_right = 1;
 				sprite->changeAnimation(MOVE);
@@ -439,7 +439,6 @@ void Player::updateCarry(int deltaTime)
 			{
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(STAND);
 			}
@@ -449,7 +448,6 @@ void Player::updateCarry(int deltaTime)
 			if (sprite->animation() != STAND) {
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
-				hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 				updateHitbox();
 				sprite->changeAnimation(STAND);
 			}
@@ -474,7 +472,6 @@ void Player::updateCarry(int deltaTime)
 				if (jumpAngle > 90)
 				{ // Falling
 					if (sprite->animation() != FALL && !smashing) {
-						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 						updateHitbox();
 						sprite->changeAnimation(FALL);
 					}
@@ -485,7 +482,6 @@ void Player::updateCarry(int deltaTime)
 				else
 				{
 					if (sprite->animation() != JUMP && !smashing) {
-						hitboxPadding.x = 6, hitboxPadding.y = 8, hitboxWidth = 20, hitboxHeight = 32;
 						updateHitbox();
 						sprite->changeAnimation(JUMP);
 					}
