@@ -35,6 +35,7 @@ public:
 	void free();
 
 	int getTileSize() const { return tileSize; }
+	glm::vec2 getSize() const;
 
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, int *posX, Object*& interactedObj) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, int *posX, Object*& interactedObj) const;
@@ -45,6 +46,7 @@ public:
 	bool collisionStaticDown(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 
 	void createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl);
+	void resetEnemies();
 
 private:
 	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, Player* playerPtr);

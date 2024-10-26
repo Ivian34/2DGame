@@ -13,7 +13,7 @@
 
 enum class PlayerStates
 {
-	S_RUN, S_CROUCH, S_SMASH, S_CARRY, NSTATES
+	S_RUN, S_CROUCH, S_SMASH, S_CARRY, S_DEAD, NSTATES
 };
 
 class Player
@@ -26,10 +26,12 @@ public:
 	void updateCrouch(int deltaTime);
 	void updateSmashing(int deltaTime);
 	void updateCarry(int deltaTime);
+	void updateDead(int deltaTime);
 	void render();
 
 	void setTileMap(TileMap* tileMap);
 	void setPosition(const glm::vec2& pos);
+	void setCheckpoint(const glm::vec2 & pos);
 	void translatePosition(const glm::vec2& t);
 	void updateHitbox();
 	glm::ivec2 getPosition();
@@ -61,6 +63,11 @@ private:
 
 	// Timers
 	float throwCooldown = 0;
+	float deathTimer = 0;
+
+	// Vidas
+	int lives, tries;
+	glm::vec2 checkpoint;
 };
 
 

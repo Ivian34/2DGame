@@ -39,7 +39,7 @@ void TreeEnemy::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posTree.x), float(tileMapDispl.y + posTree.y)));
 
-	facingLeft = false;
+	initFacingLeft = facingLeft = false;
 
 	showHitbox = false;
 	prevF1KeyState = false;
@@ -91,9 +91,11 @@ void TreeEnemy::updateAttack(int deltaTime)
 
 	glm::vec2 playerPos = player->getPosition();
 	glm::vec2 distance = glm::vec2(abs(playerPos.x - posTree.x), abs(playerPos.y - posTree.y));
-	if (distance.x >= DESPAWN_BORDER) {
+	glm::vec2 mapSize = map->getSize();
+	if (distance.x >= DESPAWN_BORDER || posTree.y >= mapSize.y - 48) {
 		enemyState = EnemyStates::SPAWN;
 		posTree = initPosTree;
+		facingLeft = initFacingLeft;
 	}
 }
 
@@ -119,6 +121,13 @@ void TreeEnemy::render()
 	if (!isSpawn()) sprite->render();
 }
 
+void TreeEnemy::reset()
+{
+	enemyState = EnemyStates::SPAWN;
+	posTree = initPosTree;
+	facingLeft = initFacingLeft;
+}
+
 void TreeEnemy::setTileMap(TileMap* tileMap)
 {
 	map = tileMap;
@@ -138,7 +147,7 @@ void TreeEnemy::setPosition(const glm::vec2& pos)
 
 void TreeEnemy::setFacingLeft(bool faceLeft)
 {
-	facingLeft = faceLeft;
+	initFacingLeft = facingLeft = faceLeft;
 	if (faceLeft) sprite->setScale(glm::vec2(-1.f, 1.f));
 }
 

@@ -25,8 +25,9 @@
 #define HITBOX_SIZE_SMALL_Y 20
 
 //Trowing
-#define THROW_COOLDOWN 1
+#define THROW_COOLDOWN 0.2f
 #define THROW_VELOCITY 10
+#define DROP_VELOCITY 0
 
 //Run
 #define ACCELERATION 0.4f
@@ -37,6 +38,11 @@
 //Smash
 #define SMASH_ANGLE 0
 #define SMASH_SPEED 2.f
+
+//Lives
+#define INIT_LIVES 3
+#define INIT_TRIES 3
+#define DEATH_TIMER 5.f
 
 enum PlayerAnimations
 {
@@ -105,11 +111,14 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 
 	// Crear la hitbox
 	hitbox = new Hitbox(glm::vec2(posHitbox.x, posHitbox.y), glm::vec2(hitboxWidth, hitboxHeight), &hitboxShaderProgram);
+	
+	lives = 3;
 }
 
 void Player::update(int deltaTime) {
 	//Timers
 	throwCooldown -= deltaTime / 1000.f;
+	deathTimer -= deltaTime / 1000.f;
 
 	//Collisions
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
@@ -122,6 +131,19 @@ void Player::update(int deltaTime) {
 	case PlayerStates::S_CROUCH: updateCrouch(deltaTime); break;
 	case PlayerStates::S_SMASH: updateSmashing(deltaTime); break;
 	case PlayerStates::S_CARRY: updateCarry(deltaTime); break;
+	case PlayerStates::S_DEAD: updateDead(deltaTime); break;
+	}
+
+	glm::vec2 mapSize = map->getSize();
+	if (posPlayer.y >= mapSize.y - 48) lives = 0;
+
+	if (lives <= 0 && playerState != PlayerStates::S_DEAD) {
+		playerState = PlayerStates::S_DEAD;
+		deathTimer = DEATH_TIMER;
+	}
+
+	if (Game::instance().getKey(GLFW_KEY_K)) {
+		--lives;
 	}
 
 	bool currentF1KeyState = Game::instance().getKey(GLFW_KEY_F1);
@@ -234,8 +256,8 @@ void Player::updateRun(int deltaTime)
 						updateHitbox();
 						sprite->changeAnimation(FALL);
 					}
-
-					bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+					Object* obj = nullptr;
+					bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], obj);
 					updateHitbox();
 				}
 				else
@@ -252,7 +274,8 @@ void Player::updateRun(int deltaTime)
 	else
 	{
 		translatePosition(glm::ivec2(0, FALL_STEP));
-		bool condition = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+		Object* obj = nullptr;
+		bool condition = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], obj);
 		updateHitbox();
 		if (condition)
 		{
@@ -510,14 +533,40 @@ void Player::updateCarry(int deltaTime)
 		if (Game::instance().getKey(GLFW_KEY_Z) && throwCooldown < 0) {
 			//mov_acceleration_left = -1;
 			//mov_acceleration_right = 1;
-			cout << "in" << endl;
 			currentCarryObj->setMoving();
-			if (facingLeft) currentCarryObj->throwObject(glm::vec2(float(-THROW_VELOCITY), 0.f));
-			else currentCarryObj->throwObject(glm::vec2(float(THROW_VELOCITY), 0.f));
+			if (mov_acceleration_left < -1 || mov_acceleration_right > 1) {
+				if (facingLeft) currentCarryObj->throwObject(glm::vec2(float(-THROW_VELOCITY), 0.f));
+				else currentCarryObj->throwObject(glm::vec2(float(THROW_VELOCITY), 0.f));
+			}
+			else {
+				if (facingLeft) {
+					currentCarryObj->setPos(glm::vec2(posPlayer.x + HITBOX_PADDING_X - HITBOX_SIZE_X, posPlayer.y));
+					currentCarryObj->throwObject(glm::vec2(float(-DROP_VELOCITY), 0.f));
+				}
+				else {
+					currentCarryObj->setPos(glm::vec2(posPlayer.x + HITBOX_PADDING_X + HITBOX_SIZE_X, posPlayer.y));
+					currentCarryObj->throwObject(glm::vec2(float(DROP_VELOCITY), 0.f));
+				}
+			}
+			
 			currentCarryObj = nullptr;
 			playerState = PlayerStates::S_RUN;
 		}
 		else currentCarryObj->setPos(glm::vec2(posPlayer.x + hitboxPadding.x, posPlayer.y + hitboxPadding.y - currentCarryObj->getSize() / 2.f));
+}
+
+void Player::updateDead(int deltaTime) { 
+	if (deathTimer < 0) {
+		--tries;
+		posPlayer = checkpoint;
+		bJumping = false;
+		facingLeft = false;
+		mov_acceleration_left = -1;
+		mov_acceleration_right = 1;
+		playerState = PlayerStates::S_RUN;
+		lives = INIT_LIVES;
+		map->resetEnemies();
+	}
 }
 
 void Player::render()
@@ -538,6 +587,10 @@ void Player::setPosition(const glm::vec2& pos)
 	posPlayer = pos;
 	posHitbox = glm::ivec2( float(posPlayer.x + hitboxPadding.x),float(posPlayer.y + hitboxPadding.y));
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
+}
+
+void Player::setCheckpoint(const glm::vec2 &pos) {
+	checkpoint = pos;
 }
 
 void Player::updateHitbox() {

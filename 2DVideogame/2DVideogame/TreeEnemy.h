@@ -25,12 +25,13 @@ public:
 	void updateDie(int deltaTime);
 	void updateSpawn(int deltaTime);
 	void render();
+	void reset();
 
 	void setTileMap(TileMap* tileMap);
 	void setPlayer(Player* playerPtr);
 	void setPosition(const glm::vec2& pos);
 	void setFacingLeft(bool faceLeft);
-
+	
 	bool isSpawn();
 private:
 
@@ -42,7 +43,7 @@ private:
 	TileMap* map;
 	Player* player;
 	EnemyStates enemyState = EnemyStates::SPAWN;
-	bool facingLeft;
+	bool facingLeft, initFacingLeft;
 	bool playerInRange = false;
 
 	//Hitbox
