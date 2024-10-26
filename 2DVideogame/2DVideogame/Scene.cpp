@@ -35,8 +35,8 @@ void Scene::init()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	initShaders();
-	map = TileMap::createTileMap("levels/levelPractice.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram);
 	player = new Player();
+	map = TileMap::createTileMap("levels/levelPractice.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram, hitboxProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setTileMap(map);

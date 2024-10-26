@@ -16,16 +16,17 @@
 
 class Object;
 class TreeEnemy;
+class Player;
 
 class TileMap
 {
 
 private:
-	TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
+	TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, Player* playerPtr);
 
 public:
 	// Tile maps can only be created inside an OpenGL context
-	static TileMap *createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
+	static TileMap *createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, Player* playerPtr);
 
 	~TileMap();
 
@@ -46,7 +47,7 @@ public:
 	void createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl);
 
 private:
-	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program);
+	bool loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, Player* playerPtr);
 	void prepareArrays(const glm::vec2 &minCoords, ShaderProgram &program);
 
 private:

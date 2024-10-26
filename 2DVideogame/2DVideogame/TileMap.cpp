@@ -5,6 +5,7 @@
 #include "TileMap.h"
 #include "Object.h"
 #include "TreeEnemy.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -13,18 +14,18 @@ enum PlayerCollisions
 	OBJH, OBJD, ENEMY, NCOLLISIONS
 };
 
-TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap *TileMap::createTileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, Player* playerPtr)
 {
-	TileMap *map = new TileMap(levelFile, minCoords, program);
+	TileMap *map = new TileMap(levelFile, minCoords, program, playerPtr);
 
 	return map;
 }
 
 
-TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+TileMap::TileMap(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, Player* playerPtr)
 {
 	texProgram = &program;
-	loadLevel(levelFile, minCoords, program);
+	loadLevel(levelFile, minCoords, program, playerPtr);
 	prepareArrays(minCoords, program);
 }
 
@@ -62,6 +63,9 @@ void TileMap::render() const
 	for (int i = 0; i < int(items.size()); ++i) {
 		items[i]->render();
 	}
+	for (int i = 0; i < int(treeEnemies.size()); ++i) {
+		treeEnemies[i]->render();
+	}
 }
 
 void TileMap::update(int deltaTime)
@@ -71,6 +75,9 @@ void TileMap::update(int deltaTime)
 	}
 	for (int i = 0; i < int(items.size()); ++i) {
 		items[i]->update(deltaTime);
+	}
+	for (int i = 0; i < int(treeEnemies.size()); ++i) {
+		treeEnemies[i]->update(deltaTime);
 	}
 
 	auto it = objects.cbegin();
@@ -96,7 +103,7 @@ void TileMap::free()
 	glDeleteBuffers(1, &backVbo);
 }
 
-bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program)
+bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, ShaderProgram &program, Player* playerPtr)
 {
 	ifstream fin;
 	string line, tilesheetFile;
@@ -224,16 +231,39 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 				objects.push_back(newObj);
 			}
 			getline(fin, line);
+			
+		}
+	}
+	getline(fin, line);
+	if (line.compare(0, 7, "ENEMIES") == 0) {
+		getline(fin, line);
+		while (line.compare(0, 3, "END") != 0) {
+			int enemyN;
+			string type, orientation;
+			sstream.str(line);
+			sstream >> type;
+			getline(fin, line);
+			sstream.str(line);
+			sstream >> enemyN;
+			for (int i = 0; i < enemyN; ++i) {
+				glm::ivec2 enemyPos;
+				getline(fin, line);
+				sstream.str(line);
+				sstream >> enemyPos.x >> enemyPos.y >> orientation;
+				if (type.compare(0, 4, "TREE")== 0) {
+					TreeEnemy *enemy = new TreeEnemy();
+					enemy->init(minCoords, program);
+					enemy->setPosition(glm::vec2(enemyPos.x * tileSize, enemyPos.y * tileSize));
+					enemy->setTileMap(this);
+					enemy->setPlayer(playerPtr);
+					enemy->setFacingLeft((orientation.compare(0, 1, "L") == 0));
+					treeEnemies.push_back(enemy);
+				}
+			}
+			getline(fin, line);
 		}
 	}
 	fin.close();
-
-	TreeEnemy *enemy = new TreeEnemy();
-	enemy->init(minCoords, program);
-	enemy->setPosition(glm::vec2(8 * tileSize, 7 * tileSize));
-	enemy->setTileMap(this);
-	treeEnemies.push_back(enemy);
-
 
 	return true;
 }
