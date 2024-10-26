@@ -8,6 +8,12 @@
 #define SPEED 1
 #define FALL_STEP 4
 
+//spawn
+#define SPAWN_BORDER 128
+#define BORDER_SIZE 16
+#define SPAWN_SIZE 128
+#define DESPAWN_BORDER 384
+
 
 enum TreeAnimations
 {
@@ -48,6 +54,19 @@ void TreeEnemy::update(int deltaTime) {
 	sprite->update(deltaTime);
 
 	//Movement
+
+	switch (enemyState) {
+	case EnemyStates::SPAWN: updateSpawn(deltaTime); break;
+	case EnemyStates::ATTACK: updateAttack(deltaTime); break;
+	case EnemyStates::DIE: updateDie(deltaTime); break;
+	}
+
+	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posTree.x), float(tileMapDispl.y + posTree.y)));
+
+}
+
+void TreeEnemy::updateAttack(int deltaTime)
+{
 	Object* obj = nullptr;
 	translatePosition(glm::ivec2(0, FALL_STEP));
 	if (map->collisionMoveDown(posTree, glm::ivec2(TREE_WIDTH, TREE_HEIGHT), TREE_HEIGHT, &posTree.y, &collisions[0], obj)) {
@@ -70,13 +89,34 @@ void TreeEnemy::update(int deltaTime) {
 	}
 	obj = nullptr;
 
-	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posTree.x), float(tileMapDispl.y + posTree.y)));
+	glm::vec2 playerPos = player->getPosition();
+	glm::vec2 distance = glm::vec2(abs(playerPos.x - posTree.x), abs(playerPos.y - posTree.y));
+	if (distance.x >= DESPAWN_BORDER) {
+		enemyState = EnemyStates::SPAWN;
+		posTree = initPosTree;
+	}
+}
 
+void TreeEnemy::updateDie(int deltaTime)
+{
+}
+
+void TreeEnemy::updateSpawn(int deltaTime)
+{
+	glm::vec2 playerPos = player->getPosition();
+	glm::vec2 distance = glm::vec2(abs(playerPos.x - posTree.x), abs(playerPos.y - posTree.y));
+	if (distance.x <= SPAWN_BORDER - BORDER_SIZE && distance.y <= SPAWN_SIZE) playerInRange = true;
+	else if ((distance.x <= SPAWN_BORDER) && (distance.y <= SPAWN_SIZE) && !playerInRange) {
+		enemyState = EnemyStates::ATTACK;
+		posTree = initPosTree;
+		playerInRange = true;
+	}
+	else if (distance.x > SPAWN_BORDER) playerInRange = false;
 }
 
 void TreeEnemy::render()
 {
-	sprite->render();
+	if (!isSpawn()) sprite->render();
 }
 
 void TreeEnemy::setTileMap(TileMap* tileMap)
@@ -86,12 +126,13 @@ void TreeEnemy::setTileMap(TileMap* tileMap)
 
 void TreeEnemy::setPlayer(Player * playerPtr)
 {
-	player = player;
+	player = playerPtr;
 }
 
 void TreeEnemy::setPosition(const glm::vec2& pos)
 {
 	posTree = pos;
+	initPosTree = posTree;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posTree.x), float(tileMapDispl.y + posTree.y)));
 }
 
@@ -99,6 +140,11 @@ void TreeEnemy::setFacingLeft(bool faceLeft)
 {
 	facingLeft = faceLeft;
 	if (faceLeft) sprite->setScale(glm::vec2(-1.f, 1.f));
+}
+
+bool TreeEnemy::isSpawn()
+{
+	return (enemyState == EnemyStates::SPAWN);
 }
 
 void TreeEnemy::translatePosition(const glm::vec2& t) {

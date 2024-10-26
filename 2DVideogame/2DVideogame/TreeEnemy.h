@@ -21,22 +21,29 @@ class TreeEnemy
 public:
 	void init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram);
 	void update(int deltaTime);
+	void updateAttack(int deltaTime);
+	void updateDie(int deltaTime);
+	void updateSpawn(int deltaTime);
 	void render();
 
 	void setTileMap(TileMap* tileMap);
 	void setPlayer(Player* playerPtr);
 	void setPosition(const glm::vec2& pos);
 	void setFacingLeft(bool faceLeft);
+
+	bool isSpawn();
 private:
 
 	void translatePosition(const glm::vec2& t);
 
-	glm::ivec2 tileMapDispl, posTree;
+	glm::ivec2 tileMapDispl, posTree, initPosTree;
 	Texture spritesheet;
 	Sprite* sprite;
 	TileMap* map;
 	Player* player;
+	EnemyStates enemyState = EnemyStates::SPAWN;
 	bool facingLeft;
+	bool playerInRange = false;
 
 	//Hitbox
 	bool showHitbox;

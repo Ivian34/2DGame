@@ -48,7 +48,7 @@ images/PracticeLvlBackgroundTileset.png 	-- Tilesheet
 00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	19	20	20	21	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00	20	20	20	20	20	22	20	21	00	00	00	00	00	00	00	00	00	00	00	00	00	00	00
 OBJECTS	
 Stone                              -- Object name
-9 16                              -- Number of objects & object size
+10 16                              -- Number of objects & object size
 NO                             -- Item
 images/ObjectSprites.png       -- Tilesheet
 2 2				--Tilesheet Size
@@ -57,6 +57,7 @@ images/ObjectSprites.png       -- Tilesheet
 20 14 
 21 14 
 35 11 
+40 10 
 58 15 
 58 14 
 69 11 
@@ -81,6 +82,8 @@ images/ObjectSprites.png
 END 
 ENEMIES 
 TREE                                -- Enemy name
-1                                   -- Number of enemies
-35 8 L 
+3                                   -- Number of enemies
+35 7 L 
+50 6 L 
+67 7 L 
 END                                 -- Objects end
