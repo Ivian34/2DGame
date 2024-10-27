@@ -44,7 +44,8 @@
 #define INIT_LIVES 3
 #define INIT_TRIES 3
 #define DEATH_TIMER 3.f
-#define DAMAGE_TIME_OUT 2.f
+#define DAMAGE_TIME_OUT 1.f
+#define DAMAGE_FLICKER_TIME 0.1f
 #define DAMAGE_KNOCKBACK_ANGLE 40
 #define DAMAGE_KNOCKBACK_SPEED 1
 
@@ -702,7 +703,12 @@ void Player::checkCollisions()
 
 void Player::render()
 {
-	sprite->render();
+	if (damageTOTimer >= 0 && playerState != PlayerStates::S_DEAD) {
+		if (int(damageTOTimer/DAMAGE_FLICKER_TIME)%2 == 0) {
+			sprite->render();
+		}
+	}
+	else sprite->render();
 	if (showHitbox && hitbox != nullptr) {
 		hitbox->render();
 	}
