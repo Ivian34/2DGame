@@ -31,8 +31,12 @@ public:
 	void setPlayer(Player* playerPtr);
 	void setPosition(const glm::vec2& pos);
 	void setFacingLeft(bool faceLeft);
+
+	glm::ivec2 getSize();
+	glm::ivec2 getPosition();
 	
 	bool isSpawn();
+	bool isAttacking();
 private:
 
 	void translatePosition(const glm::vec2& t);

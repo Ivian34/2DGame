@@ -589,6 +589,49 @@ bool TileMap::collisionStaticDown(const glm::ivec2 & pos, const glm::ivec2 & siz
 	return false;
 }
 
+bool TileMap::collisionEnemy(const glm::ivec2 & pos, const glm::ivec2 & size)
+{
+	int x0, x1, y0, y1;
+
+	x0 = pos.x;
+	x1 = (pos.x + size.x - 1);
+	y0 = pos.y;
+	y1 = (pos.y + size.y - 1);
+	for (int i = 0; i < int(treeEnemies.size()); ++i) {
+		if (treeEnemies[i]->isAttacking()) {
+			glm::ivec2 enemyPos = treeEnemies[i]->getPosition();
+			glm::ivec2 enemySize = treeEnemies[i]->getSize();
+			if ((x0 < (enemyPos.x + enemySize.x) && enemyPos.x < x1) &&
+				(y0 < (enemyPos.y + enemySize.y) && enemyPos.y < y1)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void TileMap::collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, int * lives)
+{
+	int x0, x1, y0, y1;
+
+	x0 = pos.x;
+	x1 = (pos.x + size.x - 1);
+	y0 = pos.y;
+	y1 = (pos.y + size.y - 1);
+	for (int i = 0; i < int(items.size()); ++i) {
+		if (items[i]->isActive()) {
+			glm::ivec2 itemPos = items[i]->getPosition();
+			int itemSize = items[i]->getSize();
+			if ((x0 < (itemPos.x + itemSize) && itemPos.x < x1) &&
+				(y0 < (itemPos.y + itemSize) && itemPos.y < y1)) {
+				if (*lives < 3) *lives = *lives + 1;
+				items[i]->setDestroy();
+			}
+		}
+	}
+}
+
 void TileMap::createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl)
 {
 	

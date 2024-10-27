@@ -45,6 +45,9 @@ public:
 	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionStaticDown(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 
+	bool collisionEnemy(const glm::ivec2 &pos, const glm::ivec2 &size);
+	void collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, int *lives);
+
 	void createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl);
 	void resetEnemies();
 

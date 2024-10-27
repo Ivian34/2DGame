@@ -182,7 +182,7 @@ void Object::setMoving()
 
 void Object::setDestroy()
 {
-	if (bHasItem) map->createItem(posObj, item, objSize, spriteSheetSize, spriteDispl);
+	if (bHasItem) map->createItem(glm::vec2(posObj.x, posObj.y), item, objSize, spriteSheetSize, spriteDispl);
 	objState = ObjectStates::INACTIVE;
 }
 

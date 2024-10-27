@@ -28,6 +28,7 @@
 #define THROW_COOLDOWN 0.2f
 #define THROW_VELOCITY 10
 #define DROP_VELOCITY 0
+#define THROW_BUFFER_TIME 0.1f
 
 //Run
 #define ACCELERATION 0.4f
@@ -42,11 +43,14 @@
 //Lives
 #define INIT_LIVES 3
 #define INIT_TRIES 3
-#define DEATH_TIMER 5.f
+#define DEATH_TIMER 3.f
+#define DAMAGE_TIME_OUT 2.f
+#define DAMAGE_KNOCKBACK_ANGLE 40
+#define DAMAGE_KNOCKBACK_SPEED 1
 
 enum PlayerAnimations
 {
-	STAND, MOVE, CROUCH, JUMP, FALL, SMASH
+	STAND, MOVE, CROUCH, JUMP, FALL, SMASH, HOLD_STAND, HOLD_MOVE, HOLD_JUMP, HOLD_FALL, THROW, DAMAGE, DIE, NANIMS
 };
 
 enum PlayerCollisions
@@ -59,7 +63,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 	bJumping = false;
 	spritesheet.loadFromFile("images/MM.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(PLAYER_WIDTH, PLAYER_HEIGHT), glm::vec2(float(PLAYER_WIDTH) / 488.f, float(PLAYER_HEIGHT) / 488.f), &spritesheet, &shaderProgram);
-	sprite->setNumberAnimations(6); // Solo STAND y MOVE
+	sprite->setNumberAnimations(NANIMS); // Solo STAND y MOVE
 
 	// Animacin STAND
 	sprite->setAnimationSpeed(STAND, 2);
@@ -93,6 +97,38 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 	sprite->addKeyframe(SMASH, glm::vec2(160.f / 488.f + ini, 48.f / 488.f));
 	sprite->addKeyframe(SMASH, glm::vec2(192.f / 488.f + ini, 48.f / 488.f));
 
+	//Damage
+	sprite->setAnimationSpeed(DAMAGE, 0);
+	sprite->addKeyframe(DAMAGE, glm::vec2(160.f / 488.f + ini, 320.f / 488.f));
+
+	//Damage
+	sprite->setAnimationSpeed(DIE, 1);
+	sprite->addKeyframe(DIE, glm::vec2(256.f / 488.f + ini, 320.f / 488.f));
+	sprite->addKeyframe(DIE, glm::vec2(224.f / 488.f + ini, 320.f / 488.f));
+
+	//HOLD
+	sprite->setAnimationSpeed(HOLD_STAND, 1);
+	sprite->addKeyframe(HOLD_STAND, glm::vec2(128.f / 488.f + ini, 144.f / 488.f));
+	sprite->addKeyframe(HOLD_STAND, glm::vec2(160.f / 488.f + ini, 144.f / 488.f));
+
+	sprite->setAnimationSpeed(HOLD_MOVE, 6);
+	sprite->addKeyframe(HOLD_MOVE, glm::vec2(0.f / 488.f + ini, 192.f / 488.f));
+	sprite->addKeyframe(HOLD_MOVE, glm::vec2(32.f / 488.f + ini, 192.f / 488.f));
+	sprite->addKeyframe(HOLD_MOVE, glm::vec2(64.f / 488.f + ini, 192.f / 488.f));
+	sprite->addKeyframe(HOLD_MOVE, glm::vec2(96.f / 488.f + ini, 192.f / 488.f));
+	sprite->addKeyframe(HOLD_MOVE, glm::vec2(128.f / 488.f + ini, 192.f / 488.f));
+	sprite->addKeyframe(HOLD_MOVE, glm::vec2(160.f / 488.f + ini, 192.f / 488.f));
+
+	sprite->setAnimationSpeed(HOLD_JUMP, 6);
+	sprite->addKeyframe(HOLD_JUMP, glm::vec2(256.f / 488.f + ini, 192.f / 488.f));
+
+	sprite->setAnimationSpeed(HOLD_FALL, 6);
+	sprite->addKeyframe(HOLD_FALL, glm::vec2(288.f / 488.f + ini, 192.f / 488.f));
+
+	//Throw
+	sprite->setAnimationSpeed(THROW, 6);
+	sprite->addKeyframe(THROW, glm::vec2(192.f / 488.f + ini, 144.f / 488.f));
+	
 	sprite->changeAnimation(STAND);
 	tileMapDispl = tileMapPos;
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
@@ -119,6 +155,8 @@ void Player::update(int deltaTime) {
 	//Timers
 	throwCooldown -= deltaTime / 1000.f;
 	deathTimer -= deltaTime / 1000.f;
+	damageTOTimer -= deltaTime / 1000.f;
+	animBufferTimer -= deltaTime / 1000.f;
 
 	//Collisions
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
@@ -131,16 +169,11 @@ void Player::update(int deltaTime) {
 	case PlayerStates::S_CROUCH: updateCrouch(deltaTime); break;
 	case PlayerStates::S_SMASH: updateSmashing(deltaTime); break;
 	case PlayerStates::S_CARRY: updateCarry(deltaTime); break;
+	case PlayerStates::S_DAMAGED: updateDamaged(deltaTime); break;
 	case PlayerStates::S_DEAD: updateDead(deltaTime); break;
 	}
 
-	glm::vec2 mapSize = map->getSize();
-	if (posPlayer.y >= mapSize.y - 48) lives = 0;
-
-	if (lives <= 0 && playerState != PlayerStates::S_DEAD) {
-		playerState = PlayerStates::S_DEAD;
-		deathTimer = DEATH_TIMER;
-	}
+	checkCollisions();
 
 	if (Game::instance().getKey(GLFW_KEY_K)) {
 		--lives;
@@ -164,7 +197,7 @@ void Player::updateRun(int deltaTime)
 			facingLeft = true;
 			sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
 			mov_acceleration_right = 1;
-			if (sprite->animation() != MOVE && !bJumping)
+			if (sprite->animation() != MOVE && !bJumping && animBufferTimer < 0)
 			{
 				updateHitbox();
 				sprite->changeAnimation(MOVE);
@@ -178,7 +211,7 @@ void Player::updateRun(int deltaTime)
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				updateHitbox();
-				sprite->changeAnimation(STAND);
+				if (animBufferTimer < 0) sprite->changeAnimation(STAND);
 			}
 		}
 		else if (Game::instance().getKey(GLFW_KEY_RIGHT))
@@ -186,7 +219,7 @@ void Player::updateRun(int deltaTime)
 			facingLeft = false;
 			sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
 			mov_acceleration_left = -1;
-			if (sprite->animation() != MOVE && !bJumping)
+			if (sprite->animation() != MOVE && !bJumping && animBufferTimer < 0)
 			{
 				updateHitbox();
 				sprite->changeAnimation(MOVE);
@@ -200,13 +233,13 @@ void Player::updateRun(int deltaTime)
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				updateHitbox();
-				sprite->changeAnimation(STAND);
+				if (animBufferTimer < 0) sprite->changeAnimation(STAND);
 			}
 		}
 		else if (Game::instance().getKey(GLFW_KEY_DOWN) && !bJumping)
 		{
 			playerState = PlayerStates::S_CROUCH;
-			if (sprite->animation() != CROUCH) {
+			if (sprite->animation() != CROUCH && animBufferTimer < 0) {
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				updateHitbox();
@@ -216,7 +249,7 @@ void Player::updateRun(int deltaTime)
 		}
 		else
 		{
-			if (sprite->animation() != STAND) {
+			if (sprite->animation() != STAND && animBufferTimer < 0) {
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				updateHitbox();
@@ -252,7 +285,7 @@ void Player::updateRun(int deltaTime)
 				updateHitbox();
 				if (jumpAngle > 90)
 				{ // Falling
-					if (sprite->animation() != FALL) {
+					if (sprite->animation() != FALL && animBufferTimer < 0) {
 						updateHitbox();
 						sprite->changeAnimation(FALL);
 					}
@@ -262,7 +295,7 @@ void Player::updateRun(int deltaTime)
 				}
 				else
 				{
-					if (sprite->animation() != JUMP) {
+					if (sprite->animation() != JUMP && animBufferTimer < 0) {
 						updateHitbox();
 						sprite->changeAnimation(JUMP);
 					}
@@ -384,7 +417,7 @@ void Player::updateSmashing(int deltaTime) {
 						//mov_acceleration_right = 1;
 						bJumping = true;
 						jumpAngle = SMASH_ANGLE;
-						startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));;
+						startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
 						lastInteractableObj->setDestroy();
 					}
 					else {
@@ -424,15 +457,15 @@ void Player::updateCarry(int deltaTime)
 			facingLeft = true;
 			sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
 			mov_acceleration_right = 1;
-			if (sprite->animation() != MOVE && !bJumping)
+			if (sprite->animation() != HOLD_MOVE && !bJumping)
 			{
 				
 				updateHitbox();
 				//mov_acceleration_left = -1;
-				sprite->changeAnimation(MOVE);
+				sprite->changeAnimation(HOLD_MOVE);
 			}
 			translatePosition(glm::ivec2(-INIT_SPEED + max(mov_acceleration_left, -MAX_ACC), 0));	//aceleracion
-			sprite->setAnimationSpeed(MOVE, min(6 + (-mov_acceleration_left), MAX_ANIM_SPEED)); //velocidad de animacion
+			sprite->setAnimationSpeed(HOLD_MOVE, min(6 + (-mov_acceleration_left), MAX_ANIM_SPEED)); //velocidad de animacion
 			mov_acceleration_left -= ACCELERATION;
 
 			if (map->collisionMoveLeft(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
@@ -440,7 +473,7 @@ void Player::updateCarry(int deltaTime)
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				updateHitbox();
-				sprite->changeAnimation(STAND);
+				sprite->changeAnimation(HOLD_STAND);
 			}
 		}
 		else if (Game::instance().getKey(GLFW_KEY_RIGHT))
@@ -448,14 +481,14 @@ void Player::updateCarry(int deltaTime)
 			facingLeft = false;
 			sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
 			mov_acceleration_left = -1;
-			if (sprite->animation() != MOVE && !bJumping)
+			if (sprite->animation() != HOLD_MOVE && !bJumping)
 			{
 				updateHitbox();
 				//mov_acceleration_right = 1;
-				sprite->changeAnimation(MOVE);
+				sprite->changeAnimation(HOLD_MOVE);
 			}
 			translatePosition(glm::ivec2(INIT_SPEED + min(mov_acceleration_right, MAX_ACC), 0));
-			sprite->setAnimationSpeed(MOVE, min(6 + mov_acceleration_right, MAX_ANIM_SPEED));
+			sprite->setAnimationSpeed(HOLD_MOVE, min(6 + mov_acceleration_right, MAX_ANIM_SPEED));
 			mov_acceleration_right += ACCELERATION;
 
 			if (map->collisionMoveRight(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj))
@@ -463,16 +496,16 @@ void Player::updateCarry(int deltaTime)
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				updateHitbox();
-				sprite->changeAnimation(STAND);
+				sprite->changeAnimation(HOLD_STAND);
 			}
 		}
 		else
 		{
-			if (sprite->animation() != STAND) {
+			if (sprite->animation() != HOLD_STAND) {
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				updateHitbox();
-				sprite->changeAnimation(STAND);
+				sprite->changeAnimation(HOLD_STAND);
 			}
 		}
 
@@ -494,9 +527,9 @@ void Player::updateCarry(int deltaTime)
 				updateHitbox();
 				if (jumpAngle > 90)
 				{ // Falling
-					if (sprite->animation() != FALL && !smashing) {
+					if (sprite->animation() != HOLD_FALL && !smashing) {
 						updateHitbox();
-						sprite->changeAnimation(FALL);
+						sprite->changeAnimation(HOLD_FALL);
 					}
 
 					bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
@@ -504,9 +537,9 @@ void Player::updateCarry(int deltaTime)
 				}
 				else
 				{
-					if (sprite->animation() != JUMP && !smashing) {
+					if (sprite->animation() != HOLD_JUMP && !smashing) {
 						updateHitbox();
-						sprite->changeAnimation(JUMP);
+						sprite->changeAnimation(HOLD_JUMP);
 					}
 
 				}
@@ -551,11 +584,77 @@ void Player::updateCarry(int deltaTime)
 			
 			currentCarryObj = nullptr;
 			playerState = PlayerStates::S_RUN;
+
+			if (sprite->animation() != THROW) {
+				sprite->changeAnimation(THROW);
+				animBufferTimer = THROW_BUFFER_TIME;
+			}
 		}
-		else currentCarryObj->setPos(glm::vec2(posPlayer.x + hitboxPadding.x, posPlayer.y + hitboxPadding.y - currentCarryObj->getSize() / 2.f));
+		else {
+			if (facingLeft) currentCarryObj->setPos(glm::vec2(posPlayer.x + hitboxPadding.x - 4, posPlayer.y + hitboxPadding.y - currentCarryObj->getSize() / 2.f));
+			else currentCarryObj->setPos(glm::vec2(posPlayer.x + hitboxPadding.x + 4, posPlayer.y + hitboxPadding.y - currentCarryObj->getSize() / 2.f));
+		}
+}
+
+void Player::updateDamaged(int deltaTime)
+{
+	if (!bJumping) {
+		mov_acceleration_left = -1;
+		mov_acceleration_right = 1;
+		bJumping = true;
+		jumpAngle = DAMAGE_KNOCKBACK_ANGLE;
+		startY = posPlayer.y + int(JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.0f));
+		sprite->changeAnimation(DAMAGE);
+	}
+
+	if (jumpAngle < 90) {
+		if (facingLeft) translatePosition(glm::ivec2(+SMASH_SPEED, 0));
+		else translatePosition(glm::ivec2(-SMASH_SPEED, 0));
+
+		jumpAngle += JUMP_ANGLE_STEP;
+		posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
+		updateHitbox();
+	}
+	else {
+		bJumping = false;
+		if (lives <= 0) {
+			playerState = PlayerStates::S_DEAD;
+			deathTimer = DEATH_TIMER;
+		}
+		else {
+			playerState = PlayerStates::S_RUN;
+		}
+	}
 }
 
 void Player::updateDead(int deltaTime) { 
+	if (sprite->animation() != DIE) {
+		sprite->changeAnimation(DIE);
+		mov_acceleration_left = -1;
+		mov_acceleration_right = 1;
+		bJumping = true;
+		jumpAngle = 0;
+		startY = posPlayer.y ;
+	}
+
+	if (bJumping)
+	{
+		jumpAngle += JUMP_ANGLE_STEP;
+			if (jumpAngle == 180)
+			{
+				bJumping = false;
+				posPlayer.y = startY;
+			}
+			else
+			{
+				posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
+			}
+	}
+	else
+	{
+		translatePosition(glm::ivec2(0, FALL_STEP));
+	}
+
 	if (deathTimer < 0) {
 		--tries;
 		posPlayer = checkpoint;
@@ -566,6 +665,38 @@ void Player::updateDead(int deltaTime) {
 		playerState = PlayerStates::S_RUN;
 		lives = INIT_LIVES;
 		map->resetEnemies();
+	}
+}
+
+void Player::checkCollisions()
+{
+
+	if (map->collisionEnemy(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight)) && damageTOTimer < 0 && playerState != PlayerStates::S_DEAD) {
+		--lives;
+		playerState = PlayerStates::S_DAMAGED;
+		damageTOTimer = DAMAGE_TIME_OUT;
+		bJumping = false;
+
+		if (currentCarryObj != nullptr) {
+			currentCarryObj->setMoving();
+			if (facingLeft) {
+				currentCarryObj->setPos(glm::vec2(posPlayer.x + HITBOX_PADDING_X - HITBOX_SIZE_X, posPlayer.y));
+				currentCarryObj->throwObject(glm::vec2(float(-DROP_VELOCITY), 0.f));
+			}
+			else {
+				currentCarryObj->setPos(glm::vec2(posPlayer.x + HITBOX_PADDING_X + HITBOX_SIZE_X, posPlayer.y));
+				currentCarryObj->throwObject(glm::vec2(float(DROP_VELOCITY), 0.f));
+			}
+			currentCarryObj = nullptr;
+		}
+	}
+
+	map->collisionItems(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &lives);
+
+	glm::vec2 mapSize = map->getSize();
+	if (posPlayer.y >= mapSize.y - 48 && playerState != PlayerStates::S_DEAD) {
+		playerState = PlayerStates::S_DEAD;
+		deathTimer = DEATH_TIMER;
 	}
 }
 

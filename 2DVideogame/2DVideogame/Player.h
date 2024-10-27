@@ -13,7 +13,7 @@
 
 enum class PlayerStates
 {
-	S_RUN, S_CROUCH, S_SMASH, S_CARRY, S_DEAD, NSTATES
+	S_RUN, S_CROUCH, S_SMASH, S_CARRY, S_DAMAGED, S_DEAD, NSTATES
 };
 
 class Player
@@ -26,7 +26,9 @@ public:
 	void updateCrouch(int deltaTime);
 	void updateSmashing(int deltaTime);
 	void updateCarry(int deltaTime);
+	void updateDamaged(int deltaTime);
 	void updateDead(int deltaTime);
+	void checkCollisions();
 	void render();
 
 	void setTileMap(TileMap* tileMap);
@@ -64,6 +66,8 @@ private:
 	// Timers
 	float throwCooldown = 0;
 	float deathTimer = 0;
+	float damageTOTimer = 0;
+	float animBufferTimer = 0;
 
 	// Vidas
 	int lives, tries;

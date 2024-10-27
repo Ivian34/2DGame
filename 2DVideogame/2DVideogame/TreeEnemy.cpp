@@ -111,6 +111,7 @@ void TreeEnemy::updateSpawn(int deltaTime)
 	else if ((distance.x <= SPAWN_BORDER) && (distance.y <= SPAWN_SIZE) && !playerInRange) {
 		enemyState = EnemyStates::ATTACK;
 		posTree = initPosTree;
+		facingLeft = initFacingLeft;
 		playerInRange = true;
 	}
 	else if (distance.x > SPAWN_BORDER) playerInRange = false;
@@ -151,9 +152,24 @@ void TreeEnemy::setFacingLeft(bool faceLeft)
 	if (faceLeft) sprite->setScale(glm::vec2(-1.f, 1.f));
 }
 
+glm::ivec2 TreeEnemy::getSize()
+{
+	return glm::ivec2(TREE_WIDTH, TREE_HEIGHT);
+}
+
+glm::ivec2 TreeEnemy::getPosition()
+{
+	return posTree;
+}
+
 bool TreeEnemy::isSpawn()
 {
 	return (enemyState == EnemyStates::SPAWN);
+}
+
+bool TreeEnemy::isAttacking() 
+{
+	return (enemyState == EnemyStates::ATTACK);
 }
 
 void TreeEnemy::translatePosition(const glm::vec2& t) {
