@@ -628,8 +628,14 @@ void Player::updateDamaged(int deltaTime)
 	}
 
 	if (jumpAngle < 90) {
-		if (facingLeft) translatePosition(glm::ivec2(+SMASH_SPEED, 0));
-		else translatePosition(glm::ivec2(-SMASH_SPEED, 0));
+		if (facingLeft) {
+			translatePosition(glm::ivec2(+SMASH_SPEED, 0));
+			map->collisionMoveRight(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj);
+		}
+		else {
+			translatePosition(glm::ivec2(-SMASH_SPEED, 0));
+			map->collisionMoveLeft(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &collisions[OBJH], &posPlayer.x, lastInteractableObj);
+		}
 
 		jumpAngle += JUMP_ANGLE_STEP;
 		posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
