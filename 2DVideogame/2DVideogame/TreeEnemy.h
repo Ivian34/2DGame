@@ -31,6 +31,7 @@ public:
 	void setPlayer(Player* playerPtr);
 	void setPosition(const glm::vec2& pos);
 	void setFacingLeft(bool faceLeft);
+	void setDefeat();
 
 	glm::ivec2 getSize();
 	glm::ivec2 getPosition();
@@ -47,8 +48,14 @@ private:
 	TileMap* map;
 	Player* player;
 	EnemyStates enemyState = EnemyStates::SPAWN;
+
+	int jumpAngle, startY;
+
 	bool facingLeft, initFacingLeft;
 	bool playerInRange = false;
+	bool bJumping = false;
+
+	float deathTimer;
 
 	//Hitbox
 	bool showHitbox;

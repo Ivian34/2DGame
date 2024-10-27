@@ -26,7 +26,7 @@
 
 //Trowing
 #define THROW_COOLDOWN 0.2f
-#define THROW_VELOCITY 10
+#define THROW_VELOCITY 6
 #define DROP_VELOCITY 0
 #define THROW_BUFFER_TIME 0.1f
 
@@ -48,6 +48,8 @@
 #define DAMAGE_FLICKER_TIME 0.1f
 #define DAMAGE_KNOCKBACK_ANGLE 40
 #define DAMAGE_KNOCKBACK_SPEED 1
+
+#define KEY_BUFFER_TIME 0.2f;
 
 enum PlayerAnimations
 {
@@ -158,6 +160,7 @@ void Player::update(int deltaTime) {
 	deathTimer -= deltaTime / 1000.f;
 	damageTOTimer -= deltaTime / 1000.f;
 	animBufferTimer -= deltaTime / 1000.f;
+	keyBufferTimer -= deltaTime / 1000.f;
 
 	//Collisions
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
@@ -176,8 +179,13 @@ void Player::update(int deltaTime) {
 
 	checkCollisions();
 
-	if (Game::instance().getKey(GLFW_KEY_K)) {
-		--lives;
+	if (Game::instance().getKey(GLFW_KEY_H) && keyBufferTimer < 0) {
+		lives = INIT_LIVES;
+		keyBufferTimer = KEY_BUFFER_TIME;
+	}
+	if (Game::instance().getKey(GLFW_KEY_G) && keyBufferTimer < 0) {
+		godMode = !godMode;
+		keyBufferTimer = KEY_BUFFER_TIME;
 	}
 
 	bool currentF1KeyState = Game::instance().getKey(GLFW_KEY_F1);
@@ -426,6 +434,11 @@ void Player::updateSmashing(int deltaTime) {
 						playerState = PlayerStates::S_RUN;
 					}
 				}
+				else if (map->collisionEnemyDamaging(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight))) {
+					bJumping = true;
+					jumpAngle = SMASH_ANGLE;
+					startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
+				}
 				updateHitbox();
 			}
 		}
@@ -446,6 +459,11 @@ void Player::updateSmashing(int deltaTime) {
 				lastInteractableObj->setDestroy();
 			}
 			else playerState = PlayerStates::S_RUN;
+		}
+		else if (map->collisionEnemyDamaging(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight))) {
+			bJumping = true;
+			jumpAngle = SMASH_ANGLE;
+			startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
 		}
 	}
 }
@@ -509,7 +527,7 @@ void Player::updateCarry(int deltaTime)
 				sprite->changeAnimation(HOLD_STAND);
 			}
 		}
-
+	bool grounded = false;
 	if (bJumping)
 	{
 		jumpAngle += JUMP_ANGLE_STEP;
@@ -533,7 +551,8 @@ void Player::updateCarry(int deltaTime)
 						sprite->changeAnimation(HOLD_FALL);
 					}
 
-					bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+					grounded = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+					bJumping = !grounded;
 					updateHitbox();
 				}
 				else
@@ -549,9 +568,9 @@ void Player::updateCarry(int deltaTime)
 	else
 	{
 		translatePosition(glm::ivec2(0, FALL_STEP));
-		bool condition = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+		grounded = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
 		updateHitbox();
-		if (condition)
+		if (grounded)
 		{
 			if (Game::instance().getKey(GLFW_KEY_UP))
 			{
@@ -672,7 +691,7 @@ void Player::updateDead(int deltaTime) {
 void Player::checkCollisions()
 {
 
-	if (map->collisionEnemy(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight)) && damageTOTimer < 0 && playerState != PlayerStates::S_DEAD) {
+	if (!godMode && map->collisionEnemy(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight)) && damageTOTimer < 0 && playerState != PlayerStates::S_DEAD) {
 		--lives;
 		playerState = PlayerStates::S_DAMAGED;
 		damageTOTimer = DAMAGE_TIME_OUT;

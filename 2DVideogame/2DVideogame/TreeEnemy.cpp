@@ -14,6 +14,10 @@
 #define SPAWN_SIZE 128
 #define DESPAWN_BORDER 384
 
+#define DEATH_TIME 1.f
+#define DEATH_JUMP_HEIGHT 96
+#define DEATH_JUMP_STEP 4
+
 
 enum TreeAnimations
 {
@@ -47,6 +51,7 @@ void TreeEnemy::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 void TreeEnemy::update(int deltaTime) {
 	//Timers
+	deathTimer -= deltaTime / 1000.f;
 
 	//Collisions
 
@@ -96,11 +101,42 @@ void TreeEnemy::updateAttack(int deltaTime)
 		enemyState = EnemyStates::SPAWN;
 		posTree = initPosTree;
 		facingLeft = initFacingLeft;
+		if (facingLeft) sprite->setScale(glm::vec2(-1.f, 1.f));
+		else sprite->setScale(glm::vec2(1.f, 1.f));
 	}
 }
 
 void TreeEnemy::updateDie(int deltaTime)
 {
+	if (sprite->animation() != DIE) {
+		sprite->changeAnimation(DIE);
+		bJumping = true;
+		jumpAngle = 60;
+		startY = posTree.y + int(DEATH_JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.0f));
+	}
+
+	translatePosition(glm::ivec2(1, 0));
+	if (bJumping)
+	{
+		jumpAngle += DEATH_JUMP_STEP;
+		if (jumpAngle == 180)
+		{
+			bJumping = false;
+			posTree.y = startY;
+		}
+		else
+		{
+			posTree.y = int(startY - DEATH_JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
+		}
+	}
+	else
+	{
+		translatePosition(glm::ivec2(0, FALL_STEP));
+	}
+
+	if (deathTimer < 0) {
+		reset();
+	}
 }
 
 void TreeEnemy::updateSpawn(int deltaTime)
@@ -112,6 +148,8 @@ void TreeEnemy::updateSpawn(int deltaTime)
 		enemyState = EnemyStates::ATTACK;
 		posTree = initPosTree;
 		facingLeft = initFacingLeft;
+		if (facingLeft) sprite->setScale(glm::vec2(-1.f, 1.f));
+		else sprite->setScale(glm::vec2(1.f, 1.f));
 		playerInRange = true;
 	}
 	else if (distance.x > SPAWN_BORDER) playerInRange = false;
@@ -127,6 +165,9 @@ void TreeEnemy::reset()
 	enemyState = EnemyStates::SPAWN;
 	posTree = initPosTree;
 	facingLeft = initFacingLeft;
+	if (facingLeft) sprite->setScale(glm::vec2(-1.f, 1.f));
+	else sprite->setScale(glm::vec2(1.f, 1.f));
+	sprite->changeAnimation(MOVE);
 }
 
 void TreeEnemy::setTileMap(TileMap* tileMap)
@@ -150,6 +191,12 @@ void TreeEnemy::setFacingLeft(bool faceLeft)
 {
 	initFacingLeft = facingLeft = faceLeft;
 	if (faceLeft) sprite->setScale(glm::vec2(-1.f, 1.f));
+}
+
+void TreeEnemy::setDefeat()
+{
+	deathTimer = DEATH_TIME;
+	enemyState = EnemyStates::DIE;
 }
 
 glm::ivec2 TreeEnemy::getSize()

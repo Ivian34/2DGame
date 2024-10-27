@@ -70,14 +70,14 @@ void TileMap::render() const
 
 void TileMap::update(int deltaTime)
 {
-	for (int i = 0; i < int(objects.size()); ++i) {
-		objects[i]->update(deltaTime);
-	}
 	for (int i = 0; i < int(items.size()); ++i) {
 		items[i]->update(deltaTime);
 	}
 	for (int i = 0; i < int(treeEnemies.size()); ++i) {
 		treeEnemies[i]->update(deltaTime);
+	}
+	for (int i = 0; i < int(objects.size()); ++i) {
+		objects[i]->update(deltaTime);
 	}
 
 	auto it = objects.cbegin();
@@ -610,6 +610,31 @@ bool TileMap::collisionEnemy(const glm::ivec2 & pos, const glm::ivec2 & size)
 
 	return false;
 }
+
+bool TileMap::collisionEnemyDamaging(const glm::ivec2 & pos, const glm::ivec2 & size)
+{
+	int x0, x1, y0, y1;
+
+	x0 = pos.x;
+	x1 = (pos.x + size.x - 1);
+	y0 = pos.y;
+	y1 = (pos.y + size.y - 1);
+	bool hit = false;
+	for (int i = 0; i < int(treeEnemies.size()); ++i) {
+		if (treeEnemies[i]->isAttacking()) {
+			glm::ivec2 enemyPos = treeEnemies[i]->getPosition();
+			glm::ivec2 enemySize = treeEnemies[i]->getSize();
+			if ((x0 < (enemyPos.x + enemySize.x) && enemyPos.x < x1) &&
+				(y0 < (enemyPos.y + enemySize.y) && enemyPos.y < y1)) {
+				treeEnemies[i]->setDefeat();
+				hit = true;
+			}
+		}
+	}
+
+	return hit;
+}
+
 
 void TileMap::collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, int * lives)
 {

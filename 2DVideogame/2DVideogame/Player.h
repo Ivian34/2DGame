@@ -54,7 +54,7 @@ private:
 	PlayerStates playerState = PlayerStates::S_RUN;
 	bool facingLeft;
 	bool carryObj = false;
-
+	bool godMode = false;
 	bool showHitbox;
 	bool prevF1KeyState;
 
@@ -68,6 +68,7 @@ private:
 	float deathTimer = 0;
 	float damageTOTimer = 0;
 	float animBufferTimer = 0;
+	float keyBufferTimer = 0;
 
 	// Vidas
 	int lives, tries;

@@ -7,11 +7,11 @@
 #define THROW_STEP 4
 #define INIT_THROW_ANGLE 70
 #define INIT_ITEM_ANGLE 30
-
+#define DESTROY_TIME 0.3f
 
 enum TileAnims
 {
-	BASE, DESTROY, NUM_ANIMS
+	BASE, DESTROY_TW, DESTROY_IT, NUM_ANIMS
 };
 
 void Object::init(const glm::vec2 &pos, const string &filename, ShaderProgram &shaderProgram, int tileSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl)
@@ -24,19 +24,33 @@ void Object::init(const glm::vec2 &pos, const string &filename, ShaderProgram &s
 	spritesheet.loadFromFile(filename, TEXTURE_PIXEL_FORMAT_RGBA);
 	sprite = Sprite::createSprite(glm::ivec2(tileSize), glm::vec2(float(tileSize) / (spritesheetSize.x*tileSize), float(tileSize) / (spritesheetSize.y*tileSize)), &spritesheet, &shaderProgram);
 	sprite->setNumberAnimations(NUM_ANIMS); // BASE y DESTROY
+
+	sprite->setAnimationSpeed(DESTROY_TW, 5);
+	sprite->addKeyframe(DESTROY_TW, glm::vec2(0.f / (spritesheetSize.x*tileSize), 32.f/ (spritesheetSize.y*tileSize)));
+	sprite->addKeyframe(DESTROY_TW, glm::vec2(16.f / (spritesheetSize.x*tileSize), 32.f / (spritesheetSize.y*tileSize)));
+	
+	sprite->setAnimationSpeed(DESTROY_IT, 5);
+	sprite->addKeyframe(DESTROY_IT, glm::vec2(0.f / (spritesheetSize.x*tileSize), 48.f / (spritesheetSize.y*tileSize)));
+	sprite->addKeyframe(DESTROY_IT, glm::vec2(16.f / (spritesheetSize.x*tileSize), 48.f / (spritesheetSize.y*tileSize)));
+	
+
+
 	sprite->setPosition(glm::ivec2(posObj.x + spriteDispl.x, posObj.y + spriteDispl.y));
 }
 
 
 void Object::update(int deltaTime)
 {
-	//sprite->update(deltaTime);
-	switch (objType) {
-	case ObjectType::TROWABLE: updateTrowable(deltaTime); break;
-	case ObjectType::ITEM: updateItem(deltaTime); break;
-	}
+	destroyTimer -= deltaTime / 1000.f;
 
-	
+	sprite->update(deltaTime);
+	if (objState != ObjectStates::DESTROY) {
+		switch (objType) {
+		case ObjectType::TROWABLE: updateTrowable(deltaTime); break;
+		case ObjectType::ITEM: updateItem(deltaTime); break;
+		}
+	}
+	else updateDestroy(deltaTime);
 }
 
 void Object::render() const
@@ -72,6 +86,10 @@ void Object::updateTrowable(int deltaTime)
 			setDestroy();
 		}
 
+		if (!isDestroyed && map->collisionEnemyDamaging(posObj, glm::ivec2(objSize))) {
+			setDestroy();
+		}
+
 		sprite->setPosition(glm::ivec2(posObj.x + spriteDispl.x, posObj.y + spriteDispl.y));
 	}
 }
@@ -97,6 +115,17 @@ void Object::updateItem(int deltaTime)
 	}
 }
 
+void Object::updateDestroy(int deltaTime) {
+	if (sprite->animation() == BASE) {
+		if (objType == ObjectType::TROWABLE) sprite->changeAnimation(DESTROY_TW);
+		else if (objType == ObjectType::ITEM) sprite->changeAnimation(DESTROY_IT);
+	}
+	if (destroyTimer < 0) {
+		if (bHasItem) map->createItem(glm::vec2(posObj.x, posObj.y), item, objSize, spriteSheetSize, spriteDispl);
+		objState = ObjectStates::INACTIVE;
+	}
+}
+
 void Object::setTileMap(TileMap * tileMap)
 {
 	map = tileMap;
@@ -104,6 +133,7 @@ void Object::setTileMap(TileMap * tileMap)
 
 void Object::setTexPosition(const glm::vec2 & texturePos)
 {
+	sprite->setAnimationSpeed(BASE, 0);
 	sprite->addKeyframe(BASE, glm::vec2(texturePos.x / spriteSheetSize.x, texturePos.y / spriteSheetSize.y));
 	sprite->changeAnimation(BASE);
 }
@@ -182,8 +212,8 @@ void Object::setMoving()
 
 void Object::setDestroy()
 {
-	if (bHasItem) map->createItem(glm::vec2(posObj.x, posObj.y), item, objSize, spriteSheetSize, spriteDispl);
-	objState = ObjectStates::INACTIVE;
+	objState = ObjectStates::DESTROY;
+	destroyTimer = DESTROY_TIME;
 }
 
 void Object::setContainItem(const string & i)

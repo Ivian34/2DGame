@@ -19,6 +19,7 @@ public:
 
 	void updateTrowable(int deltaTime);
 	void updateItem(int deltaTime);
+	void updateDestroy(int deltaTime);
 
 	void setTileMap(TileMap *tileMap);
 	void setTexPosition(const glm::vec2 &texturePos);
@@ -60,6 +61,8 @@ private:
 
 	bool bThrow = false;
 	bool bHasItem = false;
+
+	float destroyTimer;
 };
 
 
