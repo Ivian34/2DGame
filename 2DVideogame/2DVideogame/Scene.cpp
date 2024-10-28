@@ -6,10 +6,10 @@
 
 
 #define SCREEN_X 0
-#define SCREEN_Y -96
+#define SCREEN_Y 0
 
 #define INIT_PLAYER_X_TILES 8
-#define INIT_PLAYER_Y_TILES 6
+#define INIT_PLAYER_Y_TILES 82
 
 #define SCENE_WIDTH 352
 #define SCENE_HEIGHT 198
@@ -36,7 +36,7 @@ void Scene::init()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	initShaders();
 	player = new Player();
-	map = TileMap::createTileMap("levels/levelPractice.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
+	map = TileMap::createTileMap("levels/levelFull.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram, hitboxProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setCheckpoint(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -44,6 +44,7 @@ void Scene::init()
 	camPosition = glm::vec2(0.0f, 0.0f);
 	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
 	currentTime = 0.0f;
+	currentCamLevel = 0;
 }
 
 void Scene::update(int deltaTime)
@@ -138,14 +139,29 @@ void Scene::initShaders()
 void Scene::updateCamera()
 {
 	glm::ivec2 pos = player->getPosition();
+	glm::vec2 mapSize = map->getSize();
 
-	if ((pos.x - camPosition.x) < (SCENE_WIDTH / 3)) {
-		camPosition.x = pos.x - SCENE_WIDTH / 3;
+	int level = getCameraLevel(pos);
+
+	if (level != currentCamLevel && (pos.y + 64) < mapSize.y) {
+		camPosition.y = level * 224 + 96;
+		currentCamLevel = level;
 	}
-	if ((pos.x - camPosition.x) > 2*(SCENE_WIDTH / 3)) {
+
+	if ((pos.x - camPosition.x) < (SCENE_WIDTH / 3) && camPosition.x > 0) {
+		camPosition.x = pos.x - SCENE_WIDTH / 3;
+		if (camPosition.x < 0) camPosition.x = 0;
+	}
+	if ((pos.x - camPosition.x) > 2*(SCENE_WIDTH / 3) && camPosition.x < (mapSize.x - SCENE_WIDTH)) {
 		camPosition.x = pos.x - 2*(SCENE_WIDTH / 3);
+		if (camPosition.x > (mapSize.x - SCENE_WIDTH)) camPosition.x = mapSize.x - SCENE_WIDTH;
 	}
 	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
+}
+
+int Scene::getCameraLevel(const glm::vec2 &pos)
+{
+	return (pos.y - 64) / 224;
 }
 
 

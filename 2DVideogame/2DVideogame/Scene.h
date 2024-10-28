@@ -27,6 +27,7 @@ public:
 private:
 	void initShaders();
 	void updateCamera();
+	int getCameraLevel(const glm::vec2 &pos);
 
 private:
 	TileMap *map;
@@ -38,6 +39,7 @@ private:
 
 	bool pendingCamUpdate;
 
+	int currentCamLevel;
 };
 
 
