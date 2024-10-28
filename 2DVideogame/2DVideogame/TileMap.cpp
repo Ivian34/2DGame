@@ -486,6 +486,43 @@ bool TileMap::collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, i
 	return false;
 }
 
+bool TileMap::collisionMoveUp(const glm::ivec2 &pos, const glm::ivec2 &size, int object_height, int *posY) const
+{
+	int x0, x1, y, y2;
+
+	x0 = pos.x / tileSize;
+	x1 = (pos.x + size.x - 1) / tileSize;
+	y = (pos.y) / tileSize;
+	for (int x = x0; x <= x1; x++)
+	{
+		if (map[y*mapSize.x + x] != 0)
+		{
+			*posY = tileSize * (y+1) - (pos.y - *posY) + 2;
+			return true;
+		}
+	}
+
+	x0 = pos.x;
+	x1 = (pos.x + size.x - 1);
+	y2 = (pos.y);
+	for (int i = 0; i < int(objects.size()); ++i)
+	{
+		if (objects[i]->canCollide()) {
+			glm::ivec2 objPos = objects[i]->getPosition();
+			int objSize = objects[i]->getSize();
+
+			if ((y2 >= objPos.y && y2 < (objPos.y + objSize)) &&
+				(x0 < (objPos.x + objSize) && objPos.x < x1))
+			{
+				*posY = objPos.y + objSize + (pos.y - *posY);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool TileMap::collisionStaticHorizontal(const glm::ivec2 & pos, const glm::ivec2 & size) const
 {
 	int x0, x1, y0, y1;
