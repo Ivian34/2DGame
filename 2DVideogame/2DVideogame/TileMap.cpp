@@ -5,6 +5,7 @@
 #include "TileMap.h"
 #include "Object.h"
 #include "TreeEnemy.h"
+#include "SpiderEnemy.h"
 #include "Player.h"
 
 using namespace std;
@@ -66,6 +67,9 @@ void TileMap::render() const
 	for (int i = 0; i < int(treeEnemies.size()); ++i) {
 		treeEnemies[i]->render();
 	}
+	for (int i = 0; i < int(spiderEnemies.size()); ++i) {
+		spiderEnemies[i]->render();
+	}
 }
 
 void TileMap::update(int deltaTime)
@@ -75,6 +79,9 @@ void TileMap::update(int deltaTime)
 	}
 	for (int i = 0; i < int(treeEnemies.size()); ++i) {
 		treeEnemies[i]->update(deltaTime);
+	}
+	for (int i = 0; i < int(spiderEnemies.size()); ++i) {
+		spiderEnemies[i]->update(deltaTime);
 	}
 	for (int i = 0; i < int(objects.size()); ++i) {
 		objects[i]->update(deltaTime);
@@ -249,8 +256,9 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 				glm::ivec2 enemyPos;
 				getline(fin, line);
 				sstream.str(line);
-				sstream >> enemyPos.x >> enemyPos.y >> orientation;
+				sstream >> enemyPos.x >> enemyPos.y;
 				if (type.compare(0, 4, "TREE")== 0) {
+					sstream >> orientation;
 					TreeEnemy *enemy = new TreeEnemy();
 					enemy->init(minCoords, program);
 					enemy->setPosition(glm::vec2(enemyPos.x * tileSize, enemyPos.y * tileSize));
@@ -258,6 +266,15 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 					enemy->setPlayer(playerPtr);
 					enemy->setFacingLeft((orientation.compare(0, 1, "L") == 0));
 					treeEnemies.push_back(enemy);
+				}
+				else if (type.compare(0, 6, "SPIDER") == 0) {
+					cout << "lol" << enemyPos.x << " " << enemyPos.y << endl;
+					SpiderEnemy *enemy = new SpiderEnemy();
+					enemy->init(minCoords, program);
+					enemy->setPosition(glm::vec2(enemyPos.x * tileSize, enemyPos.y * tileSize));
+					enemy->setTileMap(this);
+					enemy->setPlayer(playerPtr);
+					spiderEnemies.push_back(enemy);
 				}
 			}
 			getline(fin, line);
@@ -644,6 +661,16 @@ bool TileMap::collisionEnemy(const glm::ivec2 & pos, const glm::ivec2 & size)
 			}
 		}
 	}
+	for (int i = 0; i < int(spiderEnemies.size()); ++i) {
+		if (spiderEnemies[i]->isAttacking()) {
+			glm::ivec2 enemyPos = spiderEnemies[i]->getPosition();
+			glm::ivec2 enemySize = spiderEnemies[i]->getSize();
+			if ((x0 < (enemyPos.x + enemySize.x) && enemyPos.x < x1) &&
+				(y0 < (enemyPos.y + enemySize.y) && enemyPos.y < y1)) {
+				return true;
+			}
+		}
+	}
 
 	return false;
 }
@@ -664,6 +691,18 @@ bool TileMap::collisionEnemyDamaging(const glm::ivec2 & pos, const glm::ivec2 & 
 			if ((x0 < (enemyPos.x + enemySize.x) && enemyPos.x < x1) &&
 				(y0 < (enemyPos.y + enemySize.y) && enemyPos.y < y1)) {
 				treeEnemies[i]->setDefeat();
+				hit = true;
+			}
+		}
+	}
+
+	for (int i = 0; i < int(spiderEnemies.size()); ++i) {
+		if (spiderEnemies[i]->isAttacking()) {
+			glm::ivec2 enemyPos = spiderEnemies[i]->getPosition();
+			glm::ivec2 enemySize = spiderEnemies[i]->getSize();
+			if ((x0 < (enemyPos.x + enemySize.x) && enemyPos.x < x1) &&
+				(y0 < (enemyPos.y + enemySize.y) && enemyPos.y < y1)) {
+				spiderEnemies[i]->setDefeat();
 				hit = true;
 			}
 		}
@@ -712,6 +751,9 @@ void TileMap::resetEnemies()
 {
 	for (int i = 0; i < int(treeEnemies.size()); ++i) {
 		treeEnemies[i]->reset();
+	}
+	for (int i = 0; i < int(spiderEnemies.size()); ++i) {
+		spiderEnemies[i]->reset();
 	}
 }
 

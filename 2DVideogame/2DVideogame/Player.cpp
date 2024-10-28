@@ -562,7 +562,7 @@ void Player::updateCarry(int deltaTime)
 				else {
 					if (jumpAngle > 90)
 					{ // Falling
-						if (sprite->animation() != HOLD_FALL && !smashing) {
+						if (sprite->animation() != HOLD_FALL) {
 							updateHitbox();
 							sprite->changeAnimation(HOLD_FALL);
 						}
@@ -573,7 +573,7 @@ void Player::updateCarry(int deltaTime)
 					}
 					else
 					{
-						if (sprite->animation() != HOLD_JUMP && !smashing) {
+						if (sprite->animation() != HOLD_JUMP) {
 							updateHitbox();
 							sprite->changeAnimation(HOLD_JUMP);
 						}

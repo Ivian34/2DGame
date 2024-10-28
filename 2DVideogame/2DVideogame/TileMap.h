@@ -16,6 +16,7 @@
 
 class Object;
 class TreeEnemy;
+class SpiderEnemy;
 class Player;
 
 class TileMap
@@ -71,6 +72,7 @@ private:
 	vector<Object*> objects, items;
 
 	vector<TreeEnemy*> treeEnemies;
+	vector<SpiderEnemy*> spiderEnemies;
 
 	ShaderProgram *texProgram;
 
