@@ -268,7 +268,6 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 					treeEnemies.push_back(enemy);
 				}
 				else if (type.compare(0, 6, "SPIDER") == 0) {
-					cout << "lol" << enemyPos.x << " " << enemyPos.y << endl;
 					SpiderEnemy *enemy = new SpiderEnemy();
 					enemy->init(minCoords, program);
 					enemy->setPosition(glm::vec2(enemyPos.x * tileSize, enemyPos.y * tileSize));

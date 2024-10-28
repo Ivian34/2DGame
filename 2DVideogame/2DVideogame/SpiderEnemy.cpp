@@ -6,7 +6,8 @@
 #define SPIDER_HEIGHT 16
 
 #define SPEED 1
-#define FALL_STEP 4
+#define FALL_SPEED 1
+#define STOP_TIME 1.f
 
 //spawn
 #define SPAWN_BORDER 128
@@ -19,7 +20,7 @@
 #define DEATH_JUMP_STEP 4
 
 
-enum TreeAnimations
+enum SpiderAnimations
 {
 	MOVE, ATTACK, DIE, NANIMS
 };
@@ -55,6 +56,7 @@ void SpiderEnemy::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgra
 void SpiderEnemy::update(int deltaTime) {
 	//Timers
 	deathTimer -= deltaTime / 1000.f;
+	stopTimer -= deltaTime / 1000.f;
 
 	//Collisions
 
@@ -66,7 +68,7 @@ void SpiderEnemy::update(int deltaTime) {
 	switch (enemyState) {
 	case SpiderEnemyStates::SPAWN: updateSpawn(deltaTime); break;
 	case SpiderEnemyStates::MOVE: updateMove(deltaTime); break;
-	case SpiderEnemyStates::ATTACK: updateMove(deltaTime); break;
+	case SpiderEnemyStates::ATTACK: updateAttack(deltaTime); break;
 	case SpiderEnemyStates::DIE: updateDie(deltaTime); break;
 	}
 
@@ -76,6 +78,9 @@ void SpiderEnemy::update(int deltaTime) {
 
 void SpiderEnemy::updateMove(int deltaTime)
 {
+	if (sprite->animation() != MOVE) {
+		sprite->changeAnimation(MOVE);
+	}
 	Object* obj = nullptr;
 		if (facingLeft) {
 			translatePosition(glm::ivec2(-SPEED, 0));
@@ -95,9 +100,12 @@ void SpiderEnemy::updateMove(int deltaTime)
 		}
 	obj = nullptr;
 
-
-
 	glm::vec2 playerPos = player->getPosition();
+	if (posEnemy.x < (playerPos.x + 24) && (playerPos.x + 8) < (posEnemy.x + SPIDER_WIDTH)) {
+		enemyState = SpiderEnemyStates::ATTACK;
+		startY = posEnemy.y;
+	}
+
 	glm::vec2 distance = glm::vec2(abs(playerPos.x - posEnemy.x), abs(playerPos.y - posEnemy.y));
 	glm::vec2 mapSize = map->getSize();
 	if (distance.x >= DESPAWN_BORDER || posEnemy.y >= mapSize.y - 48) {
@@ -110,6 +118,27 @@ void SpiderEnemy::updateMove(int deltaTime)
 
 void SpiderEnemy::updateAttack(int deltaTime)
 {
+	if (sprite->animation() != ATTACK) {
+		bGoingDown = true;
+		sprite->changeAnimation(ATTACK);
+	}
+
+	if (bGoingDown) {
+		translatePosition(glm::ivec2(0, FALL_SPEED));
+		Object* obj = nullptr;
+		if (map->collisionMoveDown(posEnemy, glm::ivec2(SPIDER_WIDTH, SPIDER_HEIGHT), SPIDER_HEIGHT, &posEnemy.y, &collisions[0], obj)) {
+			stopTimer = STOP_TIME;
+			bGoingDown = false;
+		}
+		obj = nullptr;
+	}
+	else {
+		if (stopTimer < 0) translatePosition(glm::ivec2(0, -FALL_SPEED));
+		if (posEnemy.y < startY) {
+			posEnemy.y = startY;
+			enemyState = SpiderEnemyStates::MOVE;
+		}
+	}
 }
 
 void SpiderEnemy::updateDie(int deltaTime)
@@ -137,7 +166,7 @@ void SpiderEnemy::updateDie(int deltaTime)
 	}
 	else
 	{
-		translatePosition(glm::ivec2(0, FALL_STEP));
+		translatePosition(glm::ivec2(0, DEATH_JUMP_STEP));
 	}
 
 	if (deathTimer < 0) {
