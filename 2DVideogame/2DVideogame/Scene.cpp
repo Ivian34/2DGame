@@ -60,6 +60,8 @@ void Scene::render()
 	glm::mat4 modelview;
     glm::mat4 modelview2;
 
+    glClearColor(0.4f, 0.7f, 7.0f, 1.0f);
+
     texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
 	texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.0f);

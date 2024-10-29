@@ -3,8 +3,8 @@
 uniform mat4 projection, modelview;
 uniform vec2 texCoordDispl;
 
-in vec2 position;
-in vec2 texCoord;
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 texCoord;
 out vec2 texCoordFrag;
 
 void main()
