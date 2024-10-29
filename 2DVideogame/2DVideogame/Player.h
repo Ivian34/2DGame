@@ -5,6 +5,7 @@
 #include "Sprite.h"
 #include "TileMap.h"
 #include "Hitbox.h"
+#include "HUD.h"
 #include <vector>
 
 
@@ -32,6 +33,7 @@ public:
 	void render();
 
 	void setTileMap(TileMap* tileMap);
+	void setHud(HUD* playerHud);
 	void setPosition(const glm::vec2& pos);
 	void setCheckpoint(const glm::vec2 & pos);
 	void translatePosition(const glm::vec2& t);
@@ -49,6 +51,7 @@ private:
 	Sprite* sprite;
 	TileMap* map;
 	Hitbox* hitbox;
+	HUD* hud;
 
 	//Player states
 	PlayerStates playerState = PlayerStates::S_RUN;
