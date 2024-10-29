@@ -353,10 +353,10 @@ void Player::updateRun(int deltaTime)
 		else { //si estas cayendo
 			if (Game::instance().getKey(GLFW_KEY_DOWN))
 			{
+				playerState = PlayerStates::S_SMASH;
 				if (sprite->animation() != SMASH) {
 					updateHitbox();
 					sprite->changeAnimation(SMASH);
-					smashing = true;
 				}
 			}
 		}
