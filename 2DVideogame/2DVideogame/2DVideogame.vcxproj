@@ -14,6 +14,7 @@
     <ClInclude Include="AnimKeyframes.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Hitbox.h" />
+    <ClInclude Include="InstructionsMenu.h" />
     <ClInclude Include="MenuScene.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
@@ -22,6 +23,7 @@
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="SpiderEnemy.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="TextRenderer.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="TreeEnemy.h" />
@@ -29,6 +31,7 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Hitbox.cpp" />
+    <ClCompile Include="InstructionsMenu.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuScene.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -38,6 +41,7 @@
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="SpiderEnemy.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="TreeEnemy.cpp" />
@@ -88,13 +92,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\libs\Simple OpenGL Image Library\src;..\libs\glew-1.13.0\include;..\libs\glm;..\libs\glfw-3.3.8\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\libs\Simple OpenGL Image Library\src;..\libs\glew-1.13.0\include;..\libs\glm;..\libs\glfw-3.3.8\include;..\libs\freetype-2.3.5-1-bin\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\libs\Simple OpenGL Image Library\projects\VC9\Debug;..\libs\glew-1.13.0\lib\Release\Win32;..\libs\glfw-3.3.8\lib-vc2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SOIL.lib;glew32.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\libs\Simple OpenGL Image Library\projects\VC9\Debug;..\libs\glew-1.13.0\lib\Release\Win32;..\libs\glfw-3.3.8\lib-vc2015;..\libs\freetype-2.3.5-1-bin\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SOIL.lib;glew32.lib;glfw3.lib;opengl32.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

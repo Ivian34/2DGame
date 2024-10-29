@@ -5,7 +5,8 @@
 #include <GLFW/glfw3.h>
 #include "Scene.h"
 #include "MenuScene.h"
-
+#include "TextRenderer.h"
+#include "InstructionsMenu.h"
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
@@ -45,10 +46,13 @@ private:
 	bool bPlay; // Continue to play game?
 	bool keys[GLFW_KEY_LAST+1]; // Store key states so that 
 							    // we can have access at any time
-	enum class GameState { MENU, PLAYING };
+	enum class GameState { MENU, PLAYING, INSTRUCTIONS, GAMEOVER};
 	GameState currentState;
+	GameState beforeState;
 	MenuScene menuScene;
+	InstructionsMenu instructionsScene;
 	Scene scene;
+	TextRenderer* textRenderer, * textRenderer2;
 
 };
 

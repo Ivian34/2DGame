@@ -4,50 +4,23 @@
 #include <iostream>
 
 
-struct LineSegment {
-    glm::vec2 start;
-    glm::vec2 end;
-};
-
-std::vector<LineSegment> generateLightning(glm::vec2 start, glm::vec2 end, int numSegments) {
-    std::vector<LineSegment> lightning;
-    glm::vec2 current = start;
-    for (int i = 0; i < numSegments; ++i) {
-        // Generar un pequeño desplazamiento aleatorio
-        glm::vec2 offset(rand() % 20 - 10, rand() % 20 - 10);
-
-        // Calcular el siguiente punto interpolado en la línea del rayo
-        glm::vec2 next = glm::mix(current, end, (float)(i + 1) / numSegments) + offset;
-
-        // Asegurarse de que el próximo punto esté dentro de la pantalla
-        next.x = glm::clamp(next.x, 0.0f, float(SCENE_WIDTH));
-        next.y = glm::clamp(next.y, 0.0f, float(SCENE_HEIGHT));
-
-        // Agregar el segmento a la lista
-        lightning.push_back({ current, next });
-        current = next;
-    }
-    return lightning;
-}
-
-
-void MenuScene::init()
+void MenuScene::init(TextRenderer &tr1, TextRenderer &tr2)
 {
     // Inicializar la matriz de proyección
     projection = glm::ortho(0.0f, float(SCENE_WIDTH), float(SCENE_HEIGHT), 0.0f);
 	menuBackGround.loadFromFile("images/menu3.png", TEXTURE_PIXEL_FORMAT_RGBA);
-	press.loadFromFile("images/press.png", TEXTURE_PIXEL_FORMAT_RGBA);
 	currentTime = 0.0f;
 
 	initShaders();
     glClearColor(0.4f, 0.7f, 7.0f, 1.0f);
 	initSquare(glm::vec2(0.0f, SCENE_HEIGHT), glm::vec2(SCENE_WIDTH, SCENE_HEIGHT), glm::vec2(SCENE_WIDTH, 0.f), glm::vec2(0.f, 0.f)); //Fondo del menú
-	initSquare(glm::vec2((1.f /4) * SCENE_WIDTH, (4.f/5) *  SCENE_HEIGHT ), glm::vec2(3.f /4 * SCENE_WIDTH, 4.f / 5 * SCENE_HEIGHT), glm::vec2(3.f /4 * SCENE_WIDTH, 1.f / 2 * SCENE_HEIGHT), glm::vec2(1.f / 4 * SCENE_WIDTH, 1.f / 2 * SCENE_HEIGHT)); //letras del menú
+
+	textRenderer = &tr1;
+	textRenderer2 = &tr2;
 
 	texProgram.use();
 	texProgram.setUniformMatrix4f("projection", projection);
-	simpleProgram.use();
-    simpleProgram.setUniformMatrix4f("projection", projection);
+
     // Inicializa shaders, texturas y otros recursos necesarios
 }
 
@@ -55,6 +28,11 @@ void MenuScene::update(int deltaTime)
 {
     currentTime += deltaTime;
     // Actualiza la lógica del menú, como animaciones o selección de opciones
+}
+
+ShaderProgram& MenuScene::getShaderProgram()
+{
+	return texProgram;
 }
 
 
@@ -99,10 +77,8 @@ void MenuScene::renderQuads() {
 }
 
 
-
 void MenuScene::render()
 {
-
 
     texProgram.use();
 
@@ -114,7 +90,7 @@ void MenuScene::render()
 
     texProgram.setUniform2f("texCoordDispl", 0.f, 0.f);
 
-    texProgram.setUniform4f("color", 1.0f, 1.0f, 1.0f, 1.f);
+    texProgram.setUniform4f("color", 1.0f, 1.f, 1.0f, 1.f);
 
 
     glEnable(GL_TEXTURE_2D);
@@ -128,14 +104,11 @@ void MenuScene::render()
     int tot = 1800;
     int aux = int(currentTime) % tot;
     if (aux > 0 && aux < (tot/2)) {
-        glEnable(GL_TEXTURE_2D);
-        press.use();
-        glBindVertexArray(quads[1].VAO);
-
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-        glDisable(GL_TEXTURE_2D);
+        textRenderer->renderText("Press Enter to start", 0.25 * SCENE_WIDTH, 0.41 * SCENE_HEIGHT, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
     }
+
+    textRenderer2->renderText("Press i anywhere", 0.34 * SCENE_WIDTH, 0.15 * SCENE_HEIGHT, 1.f, glm::vec4(.6, .6, 0.f, 1.f));
+    textRenderer2->renderText("for instructions", 0.34 * SCENE_WIDTH, 0.10 * SCENE_HEIGHT, 1.f, glm::vec4(.6, .6, 0.f, 1.f));
 
     glBindVertexArray(0);
 }
@@ -172,31 +145,4 @@ void MenuScene::initShaders()
     vShader.free();
     fShader.free();
 
-    // Shader para la hitbox (nuevo)
-    Shader simpleVShader, simpleFShader;
-
-    simpleVShader.initFromFile(VERTEX_SHADER, "shaders/simple.vert");
-    if (!simpleVShader.isCompiled())
-    {
-        cout << "Hitbox Vertex Shader Error" << endl;
-        cout << "" << simpleVShader.log() << endl << endl;
-    }
-    simpleFShader.initFromFile(FRAGMENT_SHADER, "shaders/simple.frag");
-    if (!simpleFShader.isCompiled())
-    {
-        cout << "Hitbox Fragment Shader Error" << endl;
-        cout << "" << simpleFShader.log() << endl << endl;
-    }
-    simpleProgram.init();
-    simpleProgram.addShader(simpleVShader);
-    simpleProgram.addShader(simpleFShader);
-    simpleProgram.link();
-    if (!simpleProgram.isLinked())
-    {
-        cout << "Hitbox Shader Linking Error" << endl;
-        cout << "" << simpleProgram.log() << endl << endl;
-    }
-    simpleProgram.bindFragmentOutput("outColor");
-    simpleVShader.free();
-    simpleFShader.free();
 }

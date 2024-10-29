@@ -14,5 +14,7 @@ void main()
 	if(texColor.a < 0.5f)
 		discard;
 	outColor = color * texColor;
+	//outColor = color;
 }
+
 
