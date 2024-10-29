@@ -69,6 +69,7 @@ private:
 	float damageTOTimer = 0;
 	float animBufferTimer = 0;
 	float keyBufferTimer = 0;
+	float jumpBufferTimer = 0;
 
 	// Vidas
 	int lives, tries;

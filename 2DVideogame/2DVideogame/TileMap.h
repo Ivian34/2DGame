@@ -16,6 +16,7 @@
 
 class Object;
 class TreeEnemy;
+class SpiderEnemy;
 class Player;
 
 class TileMap
@@ -40,6 +41,7 @@ public:
 	bool collisionMoveLeft(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, int *posX, Object*& interactedObj) const;
 	bool collisionMoveRight(const glm::ivec2 &pos, const glm::ivec2 &size, bool *collision, int *posX, Object*& interactedObj) const;
 	bool collisionMoveDown(const glm::ivec2 &pos, const glm::ivec2 &size, int object_height, int *posY, bool *collision, Object*& interactedObj) const;
+	bool collisionMoveUp(const glm::ivec2 & pos, const glm::ivec2 & size, int object_height, int * posY) const;
 
 	bool collisionStaticHorizontal(const glm::ivec2 &pos, const glm::ivec2 &size) const;
 	bool collisionStaticUp(const glm::ivec2 &pos, const glm::ivec2 &size) const;
@@ -70,6 +72,7 @@ private:
 	vector<Object*> objects, items;
 
 	vector<TreeEnemy*> treeEnemies;
+	vector<SpiderEnemy*> spiderEnemies;
 
 	ShaderProgram *texProgram;
 

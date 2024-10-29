@@ -1,6 +1,6 @@
 #include <cmath>
 #include <iostream>
-#include <GL/glew.h>
+#include <GL/glew.h>  
 #include "Player.h"
 #include "Game.h"
 #include "Object.h"
@@ -10,6 +10,7 @@
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 64
 #define FALL_STEP 4
+#define JUMP_BUFFER_TIME 0.3f
 
 
 #define PLAYER_WIDTH 32
@@ -161,6 +162,7 @@ void Player::update(int deltaTime) {
 	damageTOTimer -= deltaTime / 1000.f;
 	animBufferTimer -= deltaTime / 1000.f;
 	keyBufferTimer -= deltaTime / 1000.f;
+	jumpBufferTimer -= deltaTime / 1000.f;
 
 	//Collisions
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
@@ -291,24 +293,29 @@ void Player::updateRun(int deltaTime)
 			else
 			{
 				posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
-				updateHitbox();
-				if (jumpAngle > 90)
-				{ // Falling
-					if (sprite->animation() != FALL && animBufferTimer < 0) {
-						updateHitbox();
-						sprite->changeAnimation(FALL);
-					}
-					Object* obj = nullptr;
-					bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], obj);
-					updateHitbox();
+				if (map->collisionMoveUp(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y)) {
+					bJumping = false;
 				}
-				else
-				{
-					if (sprite->animation() != JUMP && animBufferTimer < 0) {
+				else {
+					updateHitbox();
+					if (jumpAngle > 90)
+					{ // Falling
+						if (sprite->animation() != FALL && animBufferTimer < 0) {
+							updateHitbox();
+							sprite->changeAnimation(FALL);
+						}
+						Object* obj = nullptr;
+						bJumping = !map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], obj);
 						updateHitbox();
-						sprite->changeAnimation(JUMP);
 					}
+					else
+					{
+						if (sprite->animation() != JUMP && animBufferTimer < 0) {
+							updateHitbox();
+							sprite->changeAnimation(JUMP);
+						}
 
+					}
 				}
 			}
 		}
@@ -321,10 +328,11 @@ void Player::updateRun(int deltaTime)
 		updateHitbox();
 		if (condition)
 		{
-			if (Game::instance().getKey(GLFW_KEY_UP) && playerState == PlayerStates::S_RUN)
+			if (Game::instance().getKey(GLFW_KEY_UP) && jumpBufferTimer < 0 && playerState == PlayerStates::S_RUN)
 			{
 				//mov_acceleration_left = -1;
 				//mov_acceleration_right = 1;
+				jumpBufferTimer = JUMP_BUFFER_TIME;
 				bJumping = true;
 				jumpAngle = 0;
 				startY = posPlayer.y;
@@ -416,30 +424,34 @@ void Player::updateSmashing(int deltaTime) {
 		{
 			posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
 			updateHitbox();
-			
-			if (jumpAngle > 90)
-			{ // Falling
+			if (map->collisionMoveUp(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y)) {
+				bJumping = false;
+			}
+			else {
+				if (jumpAngle > 90)
+				{ // Falling
 
-				if (map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj)) {
-					if (collisions[OBJD]) {
-						//mov_acceleration_left = -1;
-						//mov_acceleration_right = 1;
+					if (map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj)) {
+						if (collisions[OBJD]) {
+							//mov_acceleration_left = -1;
+							//mov_acceleration_right = 1;
+							bJumping = true;
+							jumpAngle = SMASH_ANGLE;
+							startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
+							lastInteractableObj->setDestroy();
+						}
+						else {
+							bJumping = false;
+							playerState = PlayerStates::S_RUN;
+						}
+					}
+					else if (map->collisionEnemyDamaging(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight))) {
 						bJumping = true;
 						jumpAngle = SMASH_ANGLE;
 						startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
-						lastInteractableObj->setDestroy();
 					}
-					else {
-						bJumping = false;
-						playerState = PlayerStates::S_RUN;
-					}
+					updateHitbox();
 				}
-				else if (map->collisionEnemyDamaging(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight))) {
-					bJumping = true;
-					jumpAngle = SMASH_ANGLE;
-					startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
-				}
-				updateHitbox();
 			}
 		}
 	}
@@ -544,24 +556,29 @@ void Player::updateCarry(int deltaTime)
 			{
 				posPlayer.y = int(startY - JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.f));
 				updateHitbox();
-				if (jumpAngle > 90)
-				{ // Falling
-					if (sprite->animation() != HOLD_FALL && !smashing) {
-						updateHitbox();
-						sprite->changeAnimation(HOLD_FALL);
-					}
-
-					grounded = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
-					bJumping = !grounded;
-					updateHitbox();
+				if (map->collisionMoveUp(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y)) {
+					bJumping = false;
 				}
-				else
-				{
-					if (sprite->animation() != HOLD_JUMP && !smashing) {
-						updateHitbox();
-						sprite->changeAnimation(HOLD_JUMP);
-					}
+				else {
+					if (jumpAngle > 90)
+					{ // Falling
+						if (sprite->animation() != HOLD_FALL) {
+							updateHitbox();
+							sprite->changeAnimation(HOLD_FALL);
+						}
 
+						grounded = map->collisionMoveDown(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), PLAYER_HEIGHT, &posPlayer.y, &collisions[OBJD], lastInteractableObj);
+						bJumping = !grounded;
+						updateHitbox();
+					}
+					else
+					{
+						if (sprite->animation() != HOLD_JUMP) {
+							updateHitbox();
+							sprite->changeAnimation(HOLD_JUMP);
+						}
+
+					}
 				}
 			}
 	}
@@ -572,10 +589,11 @@ void Player::updateCarry(int deltaTime)
 		updateHitbox();
 		if (grounded)
 		{
-			if (Game::instance().getKey(GLFW_KEY_UP))
+			if (Game::instance().getKey(GLFW_KEY_UP) && jumpBufferTimer < 0)
 			{
 				//mov_acceleration_left = -1;
 				//mov_acceleration_right = 1;
+				jumpBufferTimer = JUMP_BUFFER_TIME;
 				bJumping = true;
 				jumpAngle = 0;
 				startY = posPlayer.y;

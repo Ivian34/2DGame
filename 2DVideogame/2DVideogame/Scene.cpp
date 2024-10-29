@@ -163,7 +163,7 @@ void Scene::updateCamera()
 
 int Scene::getCameraLevel(const glm::vec2 &pos)
 {
-	return (pos.y - 64) / 224;
+	return (pos.y - 32) / 224;
 }
 
 
