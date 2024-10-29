@@ -153,6 +153,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 	hitbox = new Hitbox(glm::vec2(posHitbox.x, posHitbox.y), glm::vec2(hitboxWidth, hitboxHeight), &hitboxShaderProgram);
 	
 	lives = 3;
+	tries = 3;
 }
 
 void Player::update(int deltaTime) {
@@ -701,6 +702,7 @@ void Player::updateDead(int deltaTime) {
 
 	if (deathTimer < 0) {
 		--tries;
+		if (tries >= 0) hud->setTries(tries);
 		posPlayer = checkpoint;
 		bJumping = false;
 		facingLeft = false;
@@ -708,6 +710,7 @@ void Player::updateDead(int deltaTime) {
 		mov_acceleration_right = 1;
 		playerState = PlayerStates::S_RUN;
 		lives = INIT_LIVES;
+		hud->setLife(lives);
 		map->resetEnemies();
 	}
 }
@@ -736,6 +739,7 @@ void Player::checkCollisions()
 	}
 
 	map->collisionItems(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &lives);
+	if (lives >= 0) hud->setLife(lives);
 
 	glm::vec2 mapSize = map->getSize();
 	if (posPlayer.y >= mapSize.y - 48 && playerState != PlayerStates::S_DEAD) {
@@ -760,6 +764,13 @@ void Player::render()
 void Player::setTileMap(TileMap* tileMap)
 {
 	map = tileMap;
+}
+
+void Player::setHud(HUD * playerHud)
+{
+	hud = playerHud;
+	hud->setLife(lives);
+	hud->setTries(tries);
 }
 
 void Player::setPosition(const glm::vec2& pos)
