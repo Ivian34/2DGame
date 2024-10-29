@@ -13,7 +13,6 @@ ShaderProgram::ShaderProgram()
 void ShaderProgram::init()
 {
 	programId = glCreateProgram();
-	cout << "Program ID: " << programId << endl;
 }
 
 void ShaderProgram::addShader(const Shader &shader)

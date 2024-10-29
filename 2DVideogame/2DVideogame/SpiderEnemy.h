@@ -52,8 +52,10 @@ private:
 	bool facingLeft;
 	bool playerInRange = false;
 	bool bJumping = false;
+	bool bGoingDown = false;
 
 	float deathTimer;
+	float stopTimer;
 
 	//Hitbox
 	bool showHitbox;
