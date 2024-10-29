@@ -20,7 +20,7 @@ void Game::init()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 
     menuScene.init(*textRenderer, *textRenderer2);
-    scene.init();
+    scene.init(*textRenderer);
 	instructionsScene.init(*textRenderer, menuScene.getShaderProgram());
 
 }

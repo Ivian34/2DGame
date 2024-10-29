@@ -30,7 +30,7 @@ Scene::~Scene()
 }
 
 
-void Scene::init()
+void Scene::init(TextRenderer& tr)
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -49,6 +49,7 @@ void Scene::init()
 	hud = new HUD();
 	hud->init(texProgram, glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 16));
 	player->setHud(hud);
+	hud->setTextRenderer(tr);
 }
 
 void Scene::update(int deltaTime)
@@ -154,18 +155,18 @@ void Scene::updateCamera()
 	if (level != currentCamLevel && (pos.y + 64) < mapSize.y) {
 		camPosition.y = level * 224 + 96;
 		currentCamLevel = level;
-		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 16));
+		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
 	}
 
 	if ((pos.x - camPosition.x) < (SCENE_WIDTH / 3) && camPosition.x > 0) {
 		camPosition.x = pos.x - SCENE_WIDTH / 3;
 		if (camPosition.x < 0) camPosition.x = 0;
-		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 16));
+		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
 	}
 	if ((pos.x - camPosition.x) > 2*(SCENE_WIDTH / 3) && camPosition.x < (mapSize.x - SCENE_WIDTH)) {
 		camPosition.x = pos.x - 2*(SCENE_WIDTH / 3);
 		if (camPosition.x > (mapSize.x - SCENE_WIDTH)) camPosition.x = mapSize.x - SCENE_WIDTH;
-		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 16));
+		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
 	}
 	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
 }

@@ -7,6 +7,9 @@
 #include <algorithm>
 
 
+#define GAME_TIME 505.f
+#define ENEMY_DEFEAT_SCORE 500
+
 #define JUMP_ANGLE_STEP 4
 #define JUMP_HEIGHT 64
 #define FALL_STEP 4
@@ -154,6 +157,8 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 	
 	lives = 3;
 	tries = 3;
+
+	gameTime = GAME_TIME;
 }
 
 void Player::update(int deltaTime) {
@@ -164,6 +169,7 @@ void Player::update(int deltaTime) {
 	animBufferTimer -= deltaTime / 1000.f;
 	keyBufferTimer -= deltaTime / 1000.f;
 	jumpBufferTimer -= deltaTime / 1000.f;
+	gameTime -= deltaTime / 1000.f;
 
 	//Collisions
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
@@ -199,6 +205,8 @@ void Player::update(int deltaTime) {
 
 	sprite->setPosition(glm::vec2(float(tileMapDispl.x + posPlayer.x), float(tileMapDispl.y + posPlayer.y)));
 	updateHitbox();
+
+	if (gameTime > 0) hud->setTime(int(gameTime));
 }
 
 void Player::updateRun(int deltaTime)
@@ -450,6 +458,8 @@ void Player::updateSmashing(int deltaTime) {
 						bJumping = true;
 						jumpAngle = SMASH_ANGLE;
 						startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
+						score += ENEMY_DEFEAT_SCORE;
+						hud->setScore(score);
 					}
 					updateHitbox();
 				}
@@ -477,6 +487,8 @@ void Player::updateSmashing(int deltaTime) {
 			bJumping = true;
 			jumpAngle = SMASH_ANGLE;
 			startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
+			score += ENEMY_DEFEAT_SCORE;
+			hud->setScore(score);
 		}
 	}
 }

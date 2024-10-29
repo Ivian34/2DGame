@@ -21,7 +21,7 @@ public:
 	Scene();
 	~Scene();
 
-	void init();
+	void init(TextRenderer& tr);
 	void update(int deltaTime);
 	void render();
 

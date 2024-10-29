@@ -223,7 +223,7 @@ images/ObjectSprites.png       -- Tilesheet
 58 37 
 57 10 
 CakeChest
-11 16                       
+13 16                       
 CAKE                     
 images/ObjectSprites.png           
 2 4                         
@@ -235,6 +235,8 @@ images/ObjectSprites.png
 95 56 
 90 48 
 40 37 
+49 70 
+51 70 
 22 22 
 23 22 
 95 22 

@@ -1,10 +1,22 @@
 #include "HUD.h"
+#include <string>
 
 #define HUD_WIDTH 352
 #define HUD_HEIGHT 16
 
 #define LIFE_WIDTH 42
 #define LIFE_HEIGHT 12
+
+#define SCENE_WIDTH 352
+#define SCENE_HEIGHT 198
+
+#define SCORE_POSITION_X 196
+#define SCORE_POSITION_Y 12
+
+#define TIME_POSITION_X 287
+#define TIME_POSITION_Y 12
+
+#define MAX_SCORE 999999
 
 void HUD::init(ShaderProgram& shaderProgram, const glm::vec2 &pos)
 {
@@ -60,6 +72,13 @@ void HUD::render()
 	sprite->render();
 	lifeSprite->render();
 	triesSprite->render();
+	textRenderer->renderText(std::to_string(score), SCORE_POSITION_X, SCORE_POSITION_Y, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
+	textRenderer->renderText(std::to_string(time), TIME_POSITION_X, TIME_POSITION_Y, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
+}
+
+void HUD::setTextRenderer(TextRenderer & tr)
+{
+	textRenderer = &tr;
 }
 
 void HUD::setPos(const glm::vec2 & pos)
@@ -78,4 +97,15 @@ void HUD::setLife(int l)
 void HUD::setTries(int t)
 {
 	triesSprite->changeAnimation(t);
+}
+
+void HUD::setTime(int t)
+{
+	time = t;
+}
+
+void HUD::setScore(int s)
+{
+	if (score < MAX_SCORE) score = s;
+	else score = MAX_SCORE;
 }

@@ -73,9 +73,10 @@ private:
 	float animBufferTimer = 0;
 	float keyBufferTimer = 0;
 	float jumpBufferTimer = 0;
+	float gameTime = 0;
 
 	// Vidas
-	int lives, tries;
+	int lives, tries, score = 0;
 	glm::vec2 checkpoint;
 };
 
