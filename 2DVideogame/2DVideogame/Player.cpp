@@ -47,7 +47,7 @@
 //Lives
 #define INIT_LIVES 3
 #define INIT_TRIES 3
-#define DEATH_TIMER 3.f
+#define DEATH_TIMER 2.f
 #define DAMAGE_TIME_OUT 1.f
 #define DAMAGE_FLICKER_TIME 0.1f
 #define DAMAGE_KNOCKBACK_ANGLE 40
@@ -169,7 +169,7 @@ void Player::update(int deltaTime) {
 	animBufferTimer -= deltaTime / 1000.f;
 	keyBufferTimer -= deltaTime / 1000.f;
 	jumpBufferTimer -= deltaTime / 1000.f;
-	gameTime -= deltaTime / 1000.f;
+	if (!isGameOver()) gameTime -= deltaTime / 1000.f;
 
 	//Collisions
 	for (int i = 0; i < NCOLLISIONS; ++i) collisions[i] = false;
@@ -207,6 +207,11 @@ void Player::update(int deltaTime) {
 	updateHitbox();
 
 	if (gameTime > 0) hud->setTime(int(gameTime));
+	else {
+		playerState = PlayerStates::S_DEAD;
+		deathTimer = DEATH_TIMER;
+		tries = 0;
+	}
 }
 
 void Player::updateRun(int deltaTime)
@@ -714,16 +719,22 @@ void Player::updateDead(int deltaTime) {
 
 	if (deathTimer < 0) {
 		--tries;
-		if (tries >= 0) hud->setTries(tries);
-		posPlayer = checkpoint;
-		bJumping = false;
-		facingLeft = false;
-		mov_acceleration_left = -1;
-		mov_acceleration_right = 1;
-		playerState = PlayerStates::S_RUN;
-		lives = INIT_LIVES;
-		hud->setLife(lives);
-		map->resetEnemies();
+		if (tries > 0) {
+			hud->setTries(tries);
+			posPlayer = checkpoint;
+			bJumping = false;
+			facingLeft = false;
+			mov_acceleration_left = -1;
+			mov_acceleration_right = 1;
+			playerState = PlayerStates::S_RUN;
+			lives = INIT_LIVES;
+			hud->setLife(lives);
+			map->resetEnemies();
+		}
+		else if (tries == 0) {
+			hud->setTries(tries);
+			playerState = PlayerStates::S_GAMEOVER;
+		}
 	}
 }
 
@@ -812,4 +823,9 @@ void Player::translatePosition(const glm::vec2& t) {
 
 glm::ivec2 Player::getPosition() {
 	return posPlayer + tileMapDispl;
+}
+
+bool Player::isGameOver()
+{
+	return (tries == 0);
 }

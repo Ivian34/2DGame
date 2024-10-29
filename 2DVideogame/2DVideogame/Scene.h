@@ -7,6 +7,7 @@
 #include "TileMap.h"
 #include "Player.h"
 #include "HUD.h"
+#include "Sprite.h"
 
 
 
@@ -38,8 +39,14 @@ private:
 	float currentTime;
 	glm::mat4 projection;
 	glm::vec2 camPosition;
+	Sprite* gameMenu;
+	Sprite* gameMenuButton;
+	Texture gameMenuSpritesheet, gameMenuButtonsSpritesheet;
 
 	bool pendingCamUpdate;
+	bool gameOver = false;
+	int menuOption = 0;
+	float buttonBufferTime = 0;
 
 	int currentCamLevel;
 };

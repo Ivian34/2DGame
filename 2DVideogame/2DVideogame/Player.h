@@ -14,7 +14,7 @@
 
 enum class PlayerStates
 {
-	S_RUN, S_CROUCH, S_SMASH, S_CARRY, S_DAMAGED, S_DEAD, NSTATES
+	S_RUN, S_CROUCH, S_SMASH, S_CARRY, S_DAMAGED, S_DEAD, S_GAMEOVER, NSTATES
 };
 
 class Player
@@ -39,6 +39,8 @@ public:
 	void translatePosition(const glm::vec2& t);
 	void updateHitbox();
 	glm::ivec2 getPosition();
+
+	bool isGameOver();
 
 private:
 	bool bJumping;

@@ -14,6 +14,17 @@
 #define SCENE_WIDTH 352
 #define SCENE_HEIGHT 198
 
+#define GAME_MENU_WIDTH 128
+#define GAME_MENU_HEIGHT 72
+#define GAME_MENU_POS_X 112
+#define GAME_MENU_POS_Y 60
+
+#define GAME_MENU_BUTTON_WIDTH 8
+#define GAME_MENU_BUTTON_HEIGHT 43
+#define GAME_MENU_BUTTON_POS_X 218
+#define GAME_MENU_BUTTON_POS_Y 72
+#define BUTTON_BUFFER_TIME 0.2f
+
 Scene::Scene()
 {
 	map = NULL;
@@ -50,12 +61,32 @@ void Scene::init(TextRenderer& tr)
 	hud->init(texProgram, glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 16));
 	player->setHud(hud);
 	hud->setTextRenderer(tr);
+
+	gameMenuSpritesheet.loadFromFile("images/MenuHud.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	gameMenu = Sprite::createSprite(glm::ivec2(GAME_MENU_WIDTH, GAME_MENU_HEIGHT), glm::vec2(1.f, 1.f), &gameMenuSpritesheet, &texProgram);
+	gameMenu->setNumberAnimations(1);
+	gameMenu->setAnimationSpeed(0, 0);
+	gameMenu->addKeyframe(0, glm::vec2(0.f, 0.f));
+	gameMenu->changeAnimation(0);
+	gameMenu->setPosition(glm::vec2(camPosition.x + GAME_MENU_POS_X, camPosition.y + GAME_MENU_POS_Y));
+
+	gameMenuButtonsSpritesheet.loadFromFile("images/MenuHudButtons.png", TEXTURE_PIXEL_FORMAT_RGBA);
+	gameMenuButton = Sprite::createSprite(glm::ivec2(GAME_MENU_BUTTON_WIDTH, GAME_MENU_BUTTON_HEIGHT), glm::vec2(0.5f, 1.f), &gameMenuButtonsSpritesheet, &texProgram);
+	gameMenuButton->setNumberAnimations(2);
+	gameMenuButton->setAnimationSpeed(0, 0);
+	gameMenuButton->addKeyframe(0, glm::vec2(0.f, 0.f));
+	gameMenuButton->setAnimationSpeed(1, 0);
+	gameMenuButton->addKeyframe(1, glm::vec2(0.5f, 0.f));
+	gameMenuButton->changeAnimation(0);
+	gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
 }
 
 void Scene::update(int deltaTime)
 {
+	buttonBufferTime -= deltaTime / 1000.f;
+	gameOver = player->isGameOver();
 	currentTime += deltaTime;
-	player->update(deltaTime);
+	if (!gameOver) player->update(deltaTime);
 	map->update(deltaTime);
 	updateCamera();
 }
@@ -83,6 +114,18 @@ void Scene::render()
 	player->render();
 
 	hud->render();
+
+	if (gameOver) {
+		gameMenu->render();
+		gameMenuButton->render();
+
+		if (buttonBufferTime < 0  &&(Game::instance().getKey(GLFW_KEY_UP) || Game::instance().getKey(GLFW_KEY_DOWN))) {
+			buttonBufferTime = BUTTON_BUFFER_TIME;
+			menuOption += 1;
+			if (menuOption > 1) menuOption = 0;
+			gameMenuButton->changeAnimation(menuOption);
+		}
+	}
 }
 
 void Scene::initShaders()
@@ -156,17 +199,23 @@ void Scene::updateCamera()
 		camPosition.y = level * 224 + 96;
 		currentCamLevel = level;
 		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
+		gameMenu->setPosition(glm::vec2(camPosition.x + GAME_MENU_POS_X, camPosition.y + GAME_MENU_POS_Y));
+		gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
 	}
 
 	if ((pos.x - camPosition.x) < (SCENE_WIDTH / 3) && camPosition.x > 0) {
 		camPosition.x = pos.x - SCENE_WIDTH / 3;
 		if (camPosition.x < 0) camPosition.x = 0;
 		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
+		gameMenu->setPosition(glm::vec2(camPosition.x + GAME_MENU_POS_X, camPosition.y + GAME_MENU_POS_Y));
+		gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
 	}
 	if ((pos.x - camPosition.x) > 2*(SCENE_WIDTH / 3) && camPosition.x < (mapSize.x - SCENE_WIDTH)) {
 		camPosition.x = pos.x - 2*(SCENE_WIDTH / 3);
 		if (camPosition.x > (mapSize.x - SCENE_WIDTH)) camPosition.x = mapSize.x - SCENE_WIDTH;
 		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
+		gameMenu->setPosition(glm::vec2(camPosition.x + GAME_MENU_POS_X, camPosition.y + GAME_MENU_POS_Y));
+		gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
 	}
 	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
 }
