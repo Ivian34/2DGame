@@ -833,6 +833,8 @@ void Player::reset()
 	hud->setTries(tries);
 
 	gameTime = GAME_TIME;
+	score = 0;
+	hud->setScore(score);
 	playerState = PlayerStates::S_RUN;
 }
 
