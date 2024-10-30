@@ -45,6 +45,7 @@ public:
 	bool getKey(int key) const;
 
 	void setMenu();
+	void beatCurrentStage();
 
 private:
 	bool bPlay; // Continue to play game?

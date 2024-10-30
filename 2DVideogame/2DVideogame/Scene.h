@@ -22,11 +22,11 @@ public:
 	Scene();
 	~Scene();
 
-	void init(TextRenderer& tr);
 	void reset();
-	void init(TextRenderer& tr, string mapPath);
+	void init(TextRenderer& tr, string mapPath, const glm::ivec2 &playerPos);
 	void update(int deltaTime);
 	void render();
+	void pause();
 
 private:
 	void initShaders();
@@ -41,12 +41,15 @@ private:
 	float currentTime;
 	glm::mat4 projection;
 	glm::vec2 camPosition;
+	glm::ivec2 initPlayerPos;
 	Sprite* gameMenu;
 	Sprite* gameMenuButton;
 	Texture gameMenuSpritesheet, gameMenuButtonsSpritesheet;
+	string levelPath;
 
 	bool pendingCamUpdate;
 	bool gameOver = false;
+	bool paused = false;
 	int menuOption = 0;
 	float buttonBufferTime = 0;
 

@@ -51,7 +51,7 @@ Stone                              -- Object name
 10 16                              -- Number of objects & object size
 NO                             -- Item
 images/ObjectSprites.png       -- Tilesheet
-2 4				--Tilesheet Size
+3 4				--Tilesheet Size
 0 0                               -- Tile position
 20 15 
 20 14 
@@ -67,7 +67,7 @@ CakeChest
 3 16                       
 CAKE                     
 images/ObjectSprites.png           
-2 4                         
+3 4                         
 1 0                      
 29 15 
 63 15 
@@ -76,7 +76,7 @@ Gem
 1 16                 
 NO                      
 images/ObjectSprites.png                
-2 4                          
+3 4                          
 1 1                         
 96 13 
 END 

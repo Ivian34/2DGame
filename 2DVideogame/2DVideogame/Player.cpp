@@ -774,7 +774,9 @@ void Player::checkCollisions()
 	map->collisionItems(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &lives, &score, &win);
 	if (lives >= 0) hud->setLife(lives);
 	hud->setScore(score);
-	if (win == true) cout << "win" << endl;
+	if (win == true) {
+		Game::instance().beatCurrentStage();
+	}
 
 	glm::vec2 mapSize = map->getSize();
 	if (posPlayer.y >= mapSize.y - 48 && playerState != PlayerStates::S_DEAD) {

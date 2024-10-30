@@ -238,6 +238,7 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 
 				if (gem) {
 					newObj->setIsItem("GEM");
+					newObj->setInteractable();
 					items.push_back(newObj);
 				}
 				else {

@@ -8,9 +8,6 @@
 #define SCREEN_X 0
 #define SCREEN_Y 0
 
-#define INIT_PLAYER_X_TILES 8
-#define INIT_PLAYER_Y_TILES 82
-
 #define SCENE_WIDTH 352
 #define SCENE_HEIGHT 198
 
@@ -41,8 +38,10 @@ Scene::~Scene()
 }
 
 
-void Scene::init(TextRenderer& tr, string mapPath)
+void Scene::init(TextRenderer& tr, string mapPath, const glm::ivec2 &playerPos)
 {
+	levelPath = mapPath;
+	initPlayerPos = playerPos;
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	initShaders();
@@ -51,16 +50,16 @@ void Scene::init(TextRenderer& tr, string mapPath)
 	map = TileMap::createTileMap(mapPath, glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
 
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram, hitboxProgram);
-	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-	player->setCheckpoint(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+	player->setPosition(glm::vec2(initPlayerPos.x * map->getTileSize(), initPlayerPos.y * map->getTileSize()));
+	player->setCheckpoint(glm::vec2(initPlayerPos.x * map->getTileSize(), initPlayerPos.y * map->getTileSize()));
 	player->setTileMap(map);
-	camPosition = glm::vec2(0.0f, 0.0f);
+	camPosition = glm::vec2(0.0f, 96.0f);
 	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
 	currentTime = 0.0f;
 	currentCamLevel = 0;
 
 	hud = new HUD();
-	hud->init(texProgram, glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 16));
+	hud->init(texProgram, glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
 	player->setHud(hud);
 	hud->setTextRenderer(tr);
 
@@ -86,25 +85,34 @@ void Scene::init(TextRenderer& tr, string mapPath)
 void Scene::reset()
 {
 	delete map;
-	map = TileMap::createTileMap("levels/levelFull.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
-	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
-	player->setCheckpoint(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+	map = TileMap::createTileMap(levelPath, glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
+	player->setPosition(glm::vec2(initPlayerPos.x * map->getTileSize(), initPlayerPos.y * map->getTileSize()));
+	player->setCheckpoint(glm::vec2(initPlayerPos.x * map->getTileSize(), initPlayerPos.y * map->getTileSize()));
 	player->setTileMap(map);
 	player->reset();
-	camPosition = glm::vec2(0.0f, 0.0f);
+	camPosition = glm::vec2(0.0f, 96.0f);
 	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
+
+	hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
+	gameMenu->setPosition(glm::vec2(camPosition.x + GAME_MENU_POS_X, camPosition.y + GAME_MENU_POS_Y));
+	gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
+
 	currentTime = 0.0f;
 	currentCamLevel = 0;
-
+	gameOver = false;
+	paused = false;
 }
 
 void Scene::update(int deltaTime)
 {
 	buttonBufferTime -= deltaTime / 1000.f;
 	gameOver = player->isGameOver();
-	currentTime += deltaTime;
-	if (!gameOver) player->update(deltaTime);
-	map->update(deltaTime);
+
+	if (!paused && !gameOver) {
+		currentTime += deltaTime;
+		player->update(deltaTime);
+		map->update(deltaTime);
+	}
 	updateCamera();
 }
 
@@ -131,7 +139,7 @@ void Scene::render()
 
 	hud->render();
 
-	if (gameOver) {
+	if (gameOver || paused) {
 		gameMenu->render();
 		gameMenuButton->render();
 
@@ -148,6 +156,14 @@ void Scene::render()
 				Game::instance().setMenu();
 			}
 		}
+	}
+}
+
+void Scene::pause()
+{
+	if (buttonBufferTime < 0 && !gameOver) {
+		paused = !paused;
+		buttonBufferTime = BUTTON_BUFFER_TIME;
 	}
 }
 

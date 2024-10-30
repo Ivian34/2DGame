@@ -65,6 +65,8 @@ void HUD::init(ShaderProgram& shaderProgram, const glm::vec2 &pos)
 
 	posHUD = pos;
 	sprite->setPosition(glm::vec2(float(posHUD.x), float(posHUD.y)));
+	lifeSprite->setPosition(glm::vec2(float(posHUD.x + 35), float(posHUD.y + 2)));
+	triesSprite->setPosition(glm::vec2(float(posHUD.x + 116), float(posHUD.y + 2)));
 }
 
 void HUD::render()

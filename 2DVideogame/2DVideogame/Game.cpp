@@ -6,6 +6,11 @@
 #define FONT_SIZE 14
 #define FONT_SIZE2 12
 
+#define LEVEL1_INIT_PLAYER_X_TILES 8
+#define LEVEL1_INIT_PLAYER_Y_TILES 10
+#define LEVEL2_INIT_PLAYER_X_TILES 8
+#define LEVEL2_INIT_PLAYER_Y_TILES 82
+
 void Game::init()
 {
     bPlay = true;
@@ -21,8 +26,8 @@ void Game::init()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 
     menuScene.init(*textRenderer, *textRenderer2);
-    scene.init(*textRenderer, "levels/levelPractice.txt"); //LEVEL1
-	scene2.init(*textRenderer, "levels/levelFull.txt"); //LEVEL2
+    scene.init(*textRenderer, "levels/levelPractice.txt", glm::ivec2(LEVEL1_INIT_PLAYER_X_TILES, LEVEL1_INIT_PLAYER_Y_TILES)); //LEVEL1
+	scene2.init(*textRenderer, "levels/levelFull.txt", glm::ivec2(LEVEL2_INIT_PLAYER_X_TILES, LEVEL2_INIT_PLAYER_Y_TILES)); //LEVEL2
 	instructionsScene.init(*textRenderer, menuScene.getShaderProgram());
 
 }
@@ -31,6 +36,7 @@ bool Game::update(int deltaTime)
 {
     if (currentState == GameState::MENU)
         menuScene.update(deltaTime);
+
     else if (currentState == GameState::LEVEL1)
         scene.update(deltaTime);
 
@@ -67,9 +73,6 @@ void Game::keyPressed(int key)
 {
     keys[key] = true;
 
-    // Verifica si se presionó ESC para salir del juego
-    if (key == GLFW_KEY_ESCAPE)
-        bPlay = false;
 
     if (currentState == GameState::MENU)
     {
@@ -85,6 +88,10 @@ void Game::keyPressed(int key)
             beforeState = currentState;  // Guarda el estado actual antes de cambiar
             currentState = GameState::INSTRUCTIONS;
         }
+
+		// Verifica si se presionó ESC para salir del juego
+		if (key == GLFW_KEY_ESCAPE)
+			bPlay = false;
     }
     else if (currentState == GameState::LEVEL2)
     {
@@ -93,6 +100,10 @@ void Game::keyPressed(int key)
             beforeState = currentState;  // Guarda el estado actual antes de cambiar
             currentState = GameState::INSTRUCTIONS;
         }
+
+		// Verifica si se presionó ESC para pausar el juego
+		if (key == GLFW_KEY_ESCAPE)
+			scene2.pause();
 	}
     else if (currentState == GameState::LEVEL1) 
     {
@@ -101,6 +112,10 @@ void Game::keyPressed(int key)
             beforeState = currentState;  // Guarda el estado actual antes de cambiar
             currentState = GameState::INSTRUCTIONS;
         }
+
+		// Verifica si se presionó ESC para pausar el juego
+		if (key == GLFW_KEY_ESCAPE)
+			scene.pause();
     }
 
     else if (currentState == GameState::INSTRUCTIONS)
@@ -111,10 +126,18 @@ void Game::keyPressed(int key)
             currentState = beforeState;
         }
         // Maneja otras entradas durante el menú de instrucciones
+
+		// Verifica si se presionó ESC para salir del juego
+		if (key == GLFW_KEY_ESCAPE)
+			bPlay = false;
     }
     else if (currentState == GameState::GAMEOVER)
     {
         // Maneja la entrada durante la pantalla de Game Over
+
+		// Verifica si se presionó ESC para salir del juego
+		if (key == GLFW_KEY_ESCAPE)
+			bPlay = false;
     }
 }
 
@@ -143,6 +166,18 @@ bool Game::getKey(int key) const
 
 void Game::setMenu()
 {
+	currentState = GameState::MENU;
+	keys[GLFW_KEY_ENTER] = false;
+}
+
+void Game::beatCurrentStage()
+{
+	if (currentState == GameState::LEVEL1)
+		scene.reset();
+
+	else if (currentState == GameState::LEVEL2)
+		scene2.reset();
+
 	currentState = GameState::MENU;
 }
 
