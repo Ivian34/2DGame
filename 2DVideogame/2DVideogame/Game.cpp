@@ -16,11 +16,13 @@ void Game::init()
     textRenderer = new TextRenderer("fonts/8bitBold.ttf", SCENE_WIDTH, SCENE_HEIGHT, FONT_SIZE);
     textRenderer2 = new TextRenderer("fonts/8bitBold.ttf", SCENE_WIDTH, SCENE_HEIGHT, FONT_SIZE2);
 	//puedo agregar más fuentes si es necesario
+
     /* glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 
     menuScene.init(*textRenderer, *textRenderer2);
-    scene.init(*textRenderer);
+    scene.init(*textRenderer, "levels/levelPractice.txt"); //LEVEL1
+	scene2.init(*textRenderer, "levels/levelFull.txt"); //LEVEL2
 	instructionsScene.init(*textRenderer, menuScene.getShaderProgram());
 
 }
@@ -29,8 +31,12 @@ bool Game::update(int deltaTime)
 {
     if (currentState == GameState::MENU)
         menuScene.update(deltaTime);
-    else if (currentState == GameState::PLAYING)
+    else if (currentState == GameState::LEVEL1)
         scene.update(deltaTime);
+
+	else if (currentState == GameState::LEVEL2)
+		scene2.update(deltaTime);
+
 	else if (currentState == GameState::INSTRUCTIONS) {
 		instructionsScene.update(deltaTime);
 	}
@@ -42,17 +48,18 @@ void Game::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (currentState == GameState::MENU) {
+    if (currentState == GameState::MENU)
         menuScene.render();
-    }
 
-    else if (currentState == GameState::PLAYING)
+    else if (currentState == GameState::LEVEL1)
         scene.render();
 
-	else if (currentState == GameState::INSTRUCTIONS) {
-		
+    else if (currentState == GameState::LEVEL2)
+        scene2.render();
+
+    else if (currentState == GameState::INSTRUCTIONS)
 		instructionsScene.render();
-	}
+
 }
 
 
@@ -67,27 +74,35 @@ void Game::keyPressed(int key)
     if (currentState == GameState::MENU)
     {
         // Maneja la navegación en el menú
-        if (key == GLFW_KEY_ENTER)
+        /*if (key == GLFW_KEY_ENTER)
         {
             beforeState = currentState;  // Guarda el estado actual antes de cambiar
-            currentState = GameState::PLAYING;
-        }
-        else if (key == GLFW_KEY_I)
+            currentState = GameState::LEVEL1;
+        }*/
+        // Agrega más controles para el menú si es necesario
+        if (key == GLFW_KEY_I)
         {
             beforeState = currentState;  // Guarda el estado actual antes de cambiar
             currentState = GameState::INSTRUCTIONS;
         }
-        // Agrega más controles para el menú si es necesario
     }
-    else if (currentState == GameState::PLAYING)
+    else if (currentState == GameState::LEVEL2)
     {
         if (key == GLFW_KEY_I)
         {
             beforeState = currentState;  // Guarda el estado actual antes de cambiar
             currentState = GameState::INSTRUCTIONS;
         }
-        // Maneja otras entradas durante el juego
+	}
+    else if (currentState == GameState::LEVEL1) 
+    {
+        if (key == GLFW_KEY_I)
+        {
+            beforeState = currentState;  // Guarda el estado actual antes de cambiar
+            currentState = GameState::INSTRUCTIONS;
+        }
     }
+
     else if (currentState == GameState::INSTRUCTIONS)
     {
         if (key == GLFW_KEY_I)
@@ -124,6 +139,11 @@ void Game::mouseRelease(int button)
 bool Game::getKey(int key) const
 {
 	return keys[key];
+}
+
+void Game::setState(GameState state)
+{
+	currentState = state;
 }
 
 

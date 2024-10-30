@@ -22,7 +22,7 @@ public:
 	Scene();
 	~Scene();
 
-	void init(TextRenderer& tr);
+	void init(TextRenderer& tr, string mapPath);
 	void update(int deltaTime);
 	void render();
 
@@ -32,7 +32,7 @@ private:
 	int getCameraLevel(const glm::vec2 &pos);
 
 private:
-	TileMap *map;
+	TileMap* map;
 	Player *player;
 	HUD *hud;
 	ShaderProgram texProgram, hitboxProgram;

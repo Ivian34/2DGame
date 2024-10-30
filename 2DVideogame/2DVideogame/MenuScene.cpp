@@ -2,6 +2,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
 #include <iostream>
+#include "Game.h"
+
+#define GAME_MENU_BUTTON_WIDTH 8
+#define GAME_MENU_BUTTON_HEIGHT 43
+#define GAME_MENU_BUTTON_POS_X 218
+#define GAME_MENU_BUTTON_POS_Y 95
+#define BUTTON_BUFFER_TIME 0.2f
 
 
 void MenuScene::init(TextRenderer &tr1, TextRenderer &tr2)
@@ -22,12 +29,43 @@ void MenuScene::init(TextRenderer &tr1, TextRenderer &tr2)
 	texProgram.setUniformMatrix4f("projection", projection);
 
     // Inicializa shaders, texturas y otros recursos necesarios
+    gameMenuButtonsSpritesheet.loadFromFile("images/MenuHudButtons.png", TEXTURE_PIXEL_FORMAT_RGBA);
+    gameMenuButton = Sprite::createSprite(glm::ivec2(GAME_MENU_BUTTON_WIDTH, GAME_MENU_BUTTON_HEIGHT), glm::vec2(0.5f, 1.f), &gameMenuButtonsSpritesheet, &texProgram);
+    gameMenuButton->setNumberAnimations(2);
+    gameMenuButton->setAnimationSpeed(0, 0);
+    gameMenuButton->addKeyframe(0, glm::vec2(0.f, 0.f));
+    gameMenuButton->setAnimationSpeed(1, 0);
+    gameMenuButton->addKeyframe(1, glm::vec2(0.5f, 0.f));
+    gameMenuButton->changeAnimation(0);
+    gameMenuButton->setPosition(glm::vec2(GAME_MENU_BUTTON_POS_X, GAME_MENU_BUTTON_POS_Y));
+
 }
 
 void MenuScene::update(int deltaTime)
 {
     currentTime += deltaTime;
     // Actualiza la lógica del menú, como animaciones o selección de opciones
+
+    static int menuOption = 0;
+
+    // Obtener el estado actual de las teclas
+    bool upKeyCurrentState = Game::instance().getKey(GLFW_KEY_UP);
+    bool downKeyCurrentState = Game::instance().getKey(GLFW_KEY_DOWN);
+
+    if ((upKeyCurrentState && !upKeyPrevState) || downKeyCurrentState && !downKeyPrevState) {
+        menuOption = (menuOption == 0) ? 1 : 0;
+        gameMenuButton->changeAnimation(menuOption);
+    }
+
+	if (Game::instance().getKey(GLFW_KEY_ENTER)) {
+		if (menuOption == 0)
+		    Game::instance().setState(GameState::LEVEL1);
+        else if (menuOption == 1)
+			Game::instance().setState(GameState::LEVEL2);
+	}
+    // Actualizar los estados previos de las teclas
+    upKeyPrevState = upKeyCurrentState;
+    downKeyPrevState = downKeyCurrentState;
 }
 
 ShaderProgram& MenuScene::getShaderProgram()
@@ -92,6 +130,7 @@ void MenuScene::render()
 
     texProgram.setUniform4f("color", 1.0f, 1.f, 1.0f, 1.f);
 
+    
 
     glEnable(GL_TEXTURE_2D);
     menuBackGround.use();
@@ -101,16 +140,23 @@ void MenuScene::render()
 
     glDisable(GL_TEXTURE_2D);
 
-    int tot = 1800;
+    glBindVertexArray(0);
+
+	
+    textRenderer->renderText("Practice Level", 0.25 * SCENE_WIDTH, SCENE_HEIGHT - GAME_MENU_BUTTON_POS_Y - GAME_MENU_BUTTON_HEIGHT * 0.30, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
+    textRenderer->renderText("Full Level", 0.37 * SCENE_WIDTH, SCENE_HEIGHT - GAME_MENU_BUTTON_POS_Y - GAME_MENU_BUTTON_HEIGHT * 0.9 , 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
+
+    int tot = 1400;
     int aux = int(currentTime) % tot;
-    if (aux > 0 && aux < (tot/2)) {
-        textRenderer->renderText("Press Enter to start", 0.25 * SCENE_WIDTH, 0.41 * SCENE_HEIGHT, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
+    if (aux < (tot / 2)) {
+        gameMenuButton->render();
+       // textRenderer->renderText("Press Enter to start", 0.25 * SCENE_WIDTH, 0.41 * SCENE_HEIGHT, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
     }
 
     textRenderer2->renderText("Press i anywhere", 0.34 * SCENE_WIDTH, 0.15 * SCENE_HEIGHT, 1.f, glm::vec4(.6, .6, 0.f, 1.f));
     textRenderer2->renderText("for instructions", 0.34 * SCENE_WIDTH, 0.10 * SCENE_HEIGHT, 1.f, glm::vec4(.6, .6, 0.f, 1.f));
 
-    glBindVertexArray(0);
+    
 }
 
 

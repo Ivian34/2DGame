@@ -1,12 +1,11 @@
 #pragma once
-#ifndef _MENU_SCENE_INCLUDE
-#define _MENU_SCENE_INCLUDE
 
 #include "ShaderProgram.h"
 #include "Texture.h"
 #include <glm/glm.hpp>
 #include <vector>
 #include "TextRenderer.h"
+#include "Sprite.h"
 
 #define SCENE_WIDTH 352
 #define SCENE_HEIGHT 198
@@ -31,11 +30,13 @@ private:
     glm::mat4 projection;
     ShaderProgram texProgram;
     float currentTime;
-    Texture menuBackGround;
+    Texture menuBackGround, gameMenuButtonsSpritesheet;
+    Sprite *gameMenuButton;
 
     std::vector<Quad> quads;
     std::vector<std::vector<float>> verticesList; // Almacena los vértices de cada quad
 	TextRenderer *textRenderer, *textRenderer2;
+    bool upKeyPrevState = false;
+    bool downKeyPrevState = false;
 };
 
-#endif // _MENU_SCENE_INCLUDE
