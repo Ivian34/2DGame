@@ -159,6 +159,31 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 	tries = 3;
 
 	gameTime = GAME_TIME;
+
+	// Cargar el sonido
+	if (!jumpsoundBuffer.loadFromFile("sounds/Jump.wav")) {
+		std::cerr << "Error al cargar jump.wav" << std::endl;
+	}
+
+	// Crear una instancia de sf::Sound y asignarle el buffer
+	jumpEffect.setBuffer(jumpsoundBuffer);
+	jumpEffect.setVolume(Game::SOUND_EFFECTS_VOLUME - 10);
+
+	// Cargar el sonido
+	if (!breakingsoundBuffer.loadFromFile("sounds/SFX/Ouch/Wav/Ouch__006.wav")) {
+		std::cerr << "Error al cargar jump.wav" << std::endl;
+	}
+	// Crear una instancia de sf::Sound y asignarle el buffer
+	breakingEffect.setBuffer(breakingsoundBuffer);
+	breakingEffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 30);
+
+	// Cargar el sonido
+	if (!healingBuffer.loadFromFile("sounds/SFX/Powerup/Wav/Powerup__006.wav")) {
+		std::cerr << "Error al cargar jump.wav" << std::endl;
+	}
+	// Crear una instancia de sf::Sound y asignarle el buffer
+	healingEffect.setBuffer(healingBuffer);
+	healingEffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 30);
 }
 
 void Player::update(int deltaTime) {
@@ -346,6 +371,7 @@ void Player::updateRun(int deltaTime)
 			{
 				//mov_acceleration_left = -1;
 				//mov_acceleration_right = 1;
+				jumpEffect.play();
 				jumpBufferTimer = JUMP_BUFFER_TIME;
 				bJumping = true;
 				jumpAngle = 0;
@@ -457,6 +483,7 @@ void Player::updateSmashing(int deltaTime) {
 							jumpAngle = SMASH_ANGLE;
 							startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
 							lastInteractableObj->setDestroy();
+							breakingEffect.play();
 						}
 						else {
 							bJumping = false;
@@ -469,6 +496,7 @@ void Player::updateSmashing(int deltaTime) {
 						startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
 						score += ENEMY_DEFEAT_SCORE;
 						hud->setScore(score);
+						breakingEffect.play();
 					}
 					updateHitbox();
 				}
@@ -489,6 +517,7 @@ void Player::updateSmashing(int deltaTime) {
 				jumpAngle = SMASH_ANGLE;
 				startY = posPlayer.y + int(JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.0f));;
 				lastInteractableObj->setDestroy();
+				breakingEffect.play();
 			}
 			else playerState = PlayerStates::S_RUN;
 		}
@@ -498,6 +527,7 @@ void Player::updateSmashing(int deltaTime) {
 			startY = posPlayer.y + int(96 * sin(3.14159f * jumpAngle / 180.0f));
 			score += ENEMY_DEFEAT_SCORE;
 			hud->setScore(score);
+			breakingEffect.play();
 		}
 	}
 }
@@ -615,6 +645,7 @@ void Player::updateCarry(int deltaTime)
 			{
 				//mov_acceleration_left = -1;
 				//mov_acceleration_right = 1;
+				jumpEffect.play();
 				jumpBufferTimer = JUMP_BUFFER_TIME;
 				bJumping = true;
 				jumpAngle = 0;
@@ -771,8 +802,12 @@ void Player::checkCollisions()
 		}
 	}
 	bool win = false;
+	int livesbefore = lives;
 	map->collisionItems(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &lives, &score, &win);
 	if (lives >= 0) hud->setLife(lives);
+	if (livesbefore < lives) {
+		healingEffect.play();
+	}
 	hud->setScore(score);
 	if (win == true) {
 		Game::instance().beatCurrentStage();

@@ -7,6 +7,7 @@
 #include "Hitbox.h"
 #include "HUD.h"
 #include <vector>
+#include <SFML/Audio.hpp>
 
 
 // Player is basically a Sprite that represents the player. As such it has
@@ -81,6 +82,9 @@ private:
 	// Vidas
 	int lives, tries, score = 0;
 	glm::vec2 checkpoint;
+
+	sf::SoundBuffer jumpsoundBuffer, breakingsoundBuffer, healingBuffer;
+	sf::Sound jumpEffect, breakingEffect, healingEffect;
 };
 
 

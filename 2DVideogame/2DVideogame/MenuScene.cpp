@@ -39,6 +39,14 @@ void MenuScene::init(TextRenderer &tr1, TextRenderer &tr2)
     gameMenuButton->changeAnimation(0);
     gameMenuButton->setPosition(glm::vec2(GAME_MENU_BUTTON_POS_X, GAME_MENU_BUTTON_POS_Y));
 
+    // Cargar el sonido
+    if (!soundBuffer.loadFromFile("sounds/Select.wav")) {
+        std::cerr << "Error al cargar Select.wav" << std::endl;
+    }
+
+    // Crear una instancia de sf::Sound y asignarle el buffer
+    soundEffect.setBuffer(soundBuffer);
+    soundEffect.setVolume(Game::SOUND_EFFECTS_VOLUME);
 }
 
 void MenuScene::update(int deltaTime)
@@ -55,6 +63,7 @@ void MenuScene::update(int deltaTime)
     if ((upKeyCurrentState && !upKeyPrevState) || downKeyCurrentState && !downKeyPrevState) {
         menuOption = (menuOption == 0) ? 1 : 0;
         gameMenuButton->changeAnimation(menuOption);
+        soundEffect.play();
     }
 
 	if (Game::instance().getKey(GLFW_KEY_ENTER)) {

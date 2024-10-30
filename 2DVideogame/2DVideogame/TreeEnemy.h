@@ -6,6 +6,7 @@
 #include "TileMap.h"
 #include "Hitbox.h"
 #include <vector>
+#include <SFML/Audio.hpp>
 
 
 
@@ -63,6 +64,9 @@ private:
 
 	//Collisions
 	bool collisions[1];
+
+	sf::SoundBuffer dieBuffer;
+	sf::Sound dieEffect;
 };
 
 #endif // _TREE_ENEMY_INCLUD
