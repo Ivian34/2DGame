@@ -83,8 +83,8 @@ private:
 	int lives, tries, score = 0;
 	glm::vec2 checkpoint;
 
-	sf::SoundBuffer jumpsoundBuffer, breakingsoundBuffer, healingBuffer;
-	sf::Sound jumpEffect, breakingEffect, healingEffect;
+	sf::SoundBuffer jumpsoundBuffer, breakingsoundBuffer, healingBuffer, damagebuffer, coinbuffer;
+	sf::Sound jumpEffect, breakingEffect, healingEffect, damageeffect, coineffect;
 };
 
 

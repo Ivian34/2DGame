@@ -6,8 +6,8 @@
 
 #define GAME_MENU_BUTTON_WIDTH 8
 #define GAME_MENU_BUTTON_HEIGHT 43
-#define GAME_MENU_BUTTON_POS_X 218
-#define GAME_MENU_BUTTON_POS_Y 95
+#define GAME_MENU_BUTTON_POS_X 230
+#define GAME_MENU_BUTTON_POS_Y 140
 #define BUTTON_BUFFER_TIME 0.2f
 
 
@@ -151,19 +151,17 @@ void MenuScene::render()
 
     glBindVertexArray(0);
 
-	
-    textRenderer->renderText("Practice Level", 0.25 * SCENE_WIDTH, SCENE_HEIGHT - GAME_MENU_BUTTON_POS_Y - GAME_MENU_BUTTON_HEIGHT * 0.30, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
-    textRenderer->renderText("Full Level", 0.37 * SCENE_WIDTH, SCENE_HEIGHT - GAME_MENU_BUTTON_POS_Y - GAME_MENU_BUTTON_HEIGHT * 0.9 , 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
+    textRenderer2->renderText("Practice Level", GAME_MENU_BUTTON_POS_X - 133, SCENE_HEIGHT - GAME_MENU_BUTTON_POS_Y - GAME_MENU_BUTTON_HEIGHT * 0.30, 1.f, blanco);
+    textRenderer2->renderText("Full Level", GAME_MENU_BUTTON_POS_X - 93, SCENE_HEIGHT - GAME_MENU_BUTTON_POS_Y - GAME_MENU_BUTTON_HEIGHT * 0.9 , 1.f, blanco);
 
-    int tot = 1400;
+    int tot = 1200;
     int aux = int(currentTime) % tot;
     if (aux < (tot / 2)) {
         gameMenuButton->render();
-       // textRenderer->renderText("Press Enter to start", 0.25 * SCENE_WIDTH, 0.41 * SCENE_HEIGHT, 1.f, glm::vec4(1.f, 1.f, 1.f, 1.f));
     }
 
-    textRenderer2->renderText("Press i anywhere", 0.34 * SCENE_WIDTH, 0.15 * SCENE_HEIGHT, 1.f, glm::vec4(.6, .6, 0.f, 1.f));
-    textRenderer2->renderText("for instructions", 0.34 * SCENE_WIDTH, 0.10 * SCENE_HEIGHT, 1.f, glm::vec4(.6, .6, 0.f, 1.f));
+    textRenderer->renderText("Press i for", 0.01 * SCENE_WIDTH, 0.55 * SCENE_HEIGHT, 1.f, amarillo);
+    textRenderer->renderText("instructions", 0.01 * SCENE_WIDTH, 0.50 * SCENE_HEIGHT, 1.f, amarillo);
 
     
 }

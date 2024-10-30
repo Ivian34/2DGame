@@ -48,7 +48,7 @@
 #define INIT_LIVES 3
 #define INIT_TRIES 3
 #define DEATH_TIMER 2.f
-#define DAMAGE_TIME_OUT 1.f
+#define DAMAGE_TIME_OUT 1.6f
 #define DAMAGE_FLICKER_TIME 0.1f
 #define DAMAGE_KNOCKBACK_ANGLE 40
 #define DAMAGE_KNOCKBACK_SPEED 1
@@ -162,7 +162,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 
 	// Cargar el sonido
 	if (!jumpsoundBuffer.loadFromFile("sounds/Jump.wav")) {
-		std::cerr << "Error al cargar jump.wav" << std::endl;
+		std::cerr << "Error al cargar Jump.wav" << std::endl;
 	}
 
 	// Crear una instancia de sf::Sound y asignarle el buffer
@@ -171,7 +171,7 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 
 	// Cargar el sonido
 	if (!breakingsoundBuffer.loadFromFile("sounds/SFX/Ouch/Wav/Ouch__006.wav")) {
-		std::cerr << "Error al cargar jump.wav" << std::endl;
+		std::cerr << "Error al cargar Ouch__006.wav" << std::endl;
 	}
 	// Crear una instancia de sf::Sound y asignarle el buffer
 	breakingEffect.setBuffer(breakingsoundBuffer);
@@ -179,11 +179,28 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 
 	// Cargar el sonido
 	if (!healingBuffer.loadFromFile("sounds/SFX/Powerup/Wav/Powerup__006.wav")) {
-		std::cerr << "Error al cargar jump.wav" << std::endl;
+		std::cerr << "Error al cargar Powerup__006.wav" << std::endl;
 	}
 	// Crear una instancia de sf::Sound y asignarle el buffer
 	healingEffect.setBuffer(healingBuffer);
 	healingEffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 30);
+
+	// Cargar el sonido
+	if (!damagebuffer.loadFromFile("sounds/SFX/Ouch/Wav/Ouch__004.wav")) {
+		std::cerr << "Error al cargar Ouch__004.wav" << std::endl;
+	}
+	// Crear una instancia de sf::Sound y asignarle el buffer
+	damageeffect.setBuffer(damagebuffer);
+	damageeffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 10);
+
+	// Cargar el sonido
+	if (!coinbuffer.loadFromFile("sounds/Pickup_Coin.wav")) {
+		std::cerr << "Error al cargar Pickup_Coin.wav" << std::endl;
+	}
+	// Crear una instancia de sf::Sound y asignarle el buffer
+	coineffect.setBuffer(coinbuffer);
+	coineffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 10);
+
 }
 
 void Player::update(int deltaTime) {
@@ -702,6 +719,7 @@ void Player::updateDamaged(int deltaTime)
 		jumpAngle = DAMAGE_KNOCKBACK_ANGLE;
 		startY = posPlayer.y + int(JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.0f));
 		sprite->changeAnimation(DAMAGE);
+		damageeffect.play();
 	}
 
 	if (jumpAngle < 90) {
@@ -803,10 +821,14 @@ void Player::checkCollisions()
 	}
 	bool win = false;
 	int livesbefore = lives;
+	int scorebefore = score;
 	map->collisionItems(posHitbox, glm::ivec2(hitboxWidth, hitboxHeight), &lives, &score, &win);
 	if (lives >= 0) hud->setLife(lives);
 	if (livesbefore < lives) {
 		healingEffect.play();
+	}
+	if (scorebefore < score) {
+		coineffect.play();
 	}
 	hud->setScore(score);
 	if (win == true) {

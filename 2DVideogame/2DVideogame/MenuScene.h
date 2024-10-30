@@ -42,5 +42,9 @@ private:
 
     sf::SoundBuffer soundBuffer;
     sf::Sound soundEffect;
+
+    glm::vec4 blanco = glm::vec4(1.f, 1.f, 1.f, 1.f);
+    glm::vec4 amarillo = glm::vec4(.6, .6, 0.f, 1.f);
+
 };
 

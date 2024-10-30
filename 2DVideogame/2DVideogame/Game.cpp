@@ -4,7 +4,7 @@
 #include <iostream>
 
 #define FONT_SIZE 14
-#define FONT_SIZE2 12
+#define FONT_SIZE2 16
 
 #define LEVEL1_INIT_PLAYER_X_TILES 8
 #define LEVEL1_INIT_PLAYER_Y_TILES 10
