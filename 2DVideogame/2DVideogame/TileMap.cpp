@@ -233,6 +233,7 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 
 				if (item.compare(0, 2, "NO") != 0) {
 					if (item.compare(0, 4, "CAKE") == 0) newObj->setContainItem("CAKE");
+					else if (item.compare(0, 4, "COIN") == 0) newObj->setContainItem("COIN");
 				}
 
 				if (gem) {
@@ -718,7 +719,7 @@ bool TileMap::collisionEnemyDamaging(const glm::ivec2 & pos, const glm::ivec2 & 
 }
 
 
-void TileMap::collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, int * lives)
+void TileMap::collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, int * lives, int * score, bool * win)
 {
 	int x0, x1, y0, y1;
 
@@ -727,12 +728,15 @@ void TileMap::collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, in
 	y0 = pos.y;
 	y1 = (pos.y + size.y - 1);
 	for (int i = 0; i < int(items.size()); ++i) {
-		if (items[i]->isActive()) {
+		if (items[i]->isInteractible()) {
 			glm::ivec2 itemPos = items[i]->getPosition();
 			int itemSize = items[i]->getSize();
 			if ((x0 < (itemPos.x + itemSize) && itemPos.x < x1) &&
 				(y0 < (itemPos.y + itemSize) && itemPos.y < y1)) {
-				if (*lives < 3) *lives = *lives + 1;
+				string itemType = items[i]->itemType();
+				if (itemType.compare(0, 4, "CAKE") == 0 && *lives < 3) *lives = *lives + 1;
+				else if (itemType.compare(0, 4, "COIN") == 0) *score += 1000;
+				else if (itemType.compare(0, 3, "GEM") == 0) *win = true;
 				items[i]->setDestroy();
 			}
 		}
@@ -747,7 +751,7 @@ void TileMap::createItem(const glm::ivec2 & pos, const string & type, int itemSi
 	
 	if (type.compare(0, 4, "CAKE") == 0) newObj->setTexPosition(glm::ivec2(0, 1));
 	else if (type.compare(0, 3, "GEM") == 0) newObj->setTexPosition(glm::ivec2(1));
-	else if (type.compare(0, 4, "COIN") == 0) newObj->setTexPosition(glm::ivec2(1));
+	else if (type.compare(0, 4, "COIN") == 0) newObj->setTexPosition(glm::ivec2(2, 0));
 
 	newObj->setTileMap(this);
 	newObj->setIsItem(type);

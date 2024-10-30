@@ -195,6 +195,11 @@ bool Object::hasItem()
 	return bHasItem;
 }
 
+string Object::itemType()
+{
+	return item;
+}
+
 void Object::setInteractable()
 {
 	objState = ObjectStates::INTERACTABLE;

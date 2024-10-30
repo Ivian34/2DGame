@@ -2,6 +2,7 @@
 #define _OBJECT_INCLUDE
 
 #include "Sprite.h"
+#include <string>
 
 class TileMap;
 
@@ -37,6 +38,8 @@ public:
 	bool isInteractible() const;
 	bool canCollide() const;
 	bool hasItem();
+
+	string itemType();
 
 	//State setters
 	void setInteractable();

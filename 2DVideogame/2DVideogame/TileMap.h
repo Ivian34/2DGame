@@ -49,7 +49,7 @@ public:
 
 	bool collisionEnemy(const glm::ivec2 &pos, const glm::ivec2 &size);
 	bool collisionEnemyDamaging(const glm::ivec2 &pos, const glm::ivec2 &size);
-	void collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, int *lives);
+	void collisionItems(const glm::ivec2 & pos, const glm::ivec2 & size, int * lives, int * score, bool * win);
 
 	void createItem(const glm::ivec2 & pos, const string & type, int itemSize, const glm::vec2 &spritesheetSize, const glm::vec2 &spritesheetDispl);
 	void resetEnemies();
