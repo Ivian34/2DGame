@@ -23,6 +23,7 @@ public:
 	~Scene();
 
 	void init(TextRenderer& tr);
+	void reset();
 	void update(int deltaTime);
 	void render();
 

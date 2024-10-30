@@ -126,5 +126,10 @@ bool Game::getKey(int key) const
 	return keys[key];
 }
 
+void Game::setMenu()
+{
+	currentState = GameState::MENU;
+}
+
 
 
