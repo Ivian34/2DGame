@@ -201,6 +201,14 @@ void Player::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram, Sh
 	coineffect.setBuffer(coinbuffer);
 	coineffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 10);
 
+	// Cargar el sonido
+	if (!deathbuffer.loadFromFile("sounds/death.wav")) {
+		std::cerr << "Error al cargar death.wav" << std::endl;
+	}
+	// Crear una instancia de sf::Sound y asignarle el buffer
+	deatheffect.setBuffer(deathbuffer);
+	deatheffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 10);
+
 }
 
 void Player::update(int deltaTime) {
@@ -750,6 +758,7 @@ void Player::updateDamaged(int deltaTime)
 
 void Player::updateDead(int deltaTime) { 
 	if (sprite->animation() != DIE) {
+		deatheffect.play();
 		sprite->changeAnimation(DIE);
 		mov_acceleration_left = -1;
 		mov_acceleration_right = 1;

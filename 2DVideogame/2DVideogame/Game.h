@@ -60,6 +60,8 @@ private:
 	Scene scene, scene2;
 	TextRenderer* textRenderer, * textRenderer2;
 	sf::Music backgroundMusic;
+	sf::SoundBuffer victorybuffer;
+	sf::Sound victoryeffect;
 };
 
 

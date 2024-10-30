@@ -41,6 +41,14 @@ void Game::init()
     }
     backgroundMusic.setLoop(true);  // Configura la música para que se repita en bucle
     backgroundMusic.play();         // Inicia la reproducción de la música
+
+    // Cargar el sonido
+    if (!victorybuffer.loadFromFile("sounds/Victory.wav")) {
+        std::cerr << "Error al cargar Victory.wav" << std::endl;
+    }
+    // Crear una instancia de sf::Sound y asignarle el buffer
+    victoryeffect.setBuffer(victorybuffer);
+    victoryeffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 20);
 }
 
 bool Game::update(int deltaTime)
@@ -217,13 +225,28 @@ void Game::setMenu()
 
 void Game::beatCurrentStage()
 {
-	if (currentState == GameState::LEVEL1)
-		scene.reset();
+    if (currentState == GameState::LEVEL1) {
+        backgroundMusic.pause();
+        victoryeffect.play();
+        while (victoryeffect.getStatus() == sf::Sound::Playing) {
+            sf::sleep(sf::milliseconds(100)); // Pausar brevemente para reducir la carga de la CPU
+        }
+        scene.reset();
+        backgroundMusic.play();
+    }
+		
 
-	else if (currentState == GameState::LEVEL2)
-		scene2.reset();
-
-	currentState = GameState::MENU;
+    else if (currentState == GameState::LEVEL2) {
+		backgroundMusic.pause();
+        victoryeffect.play();
+        while (victoryeffect.getStatus() == sf::Sound::Playing) {
+            sf::sleep(sf::milliseconds(100)); // Pausar brevemente para reducir la carga de la CPU
+        }
+        scene2.reset();
+        backgroundMusic.play();
+    }
+		
+    currentState = GameState::MENU;
 }
 
 void Game::setState(GameState state)
