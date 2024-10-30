@@ -372,6 +372,10 @@ void Player::updateRun(int deltaTime)
 					sprite->changeAnimation(SMASH);
 				}
 			}
+			if (sprite->animation() != FALL && animBufferTimer < 0) {
+				updateHitbox();
+				sprite->changeAnimation(FALL);
+			}
 		}
 	}
 }
@@ -617,6 +621,12 @@ void Player::updateCarry(int deltaTime)
 				startY = posPlayer.y;
 			}
 		}
+		else {
+			if (sprite->animation() != HOLD_FALL && animBufferTimer < 0) {
+				updateHitbox();
+				sprite->changeAnimation(HOLD_FALL);
+			}
+		}
 	}
 
 		if (Game::instance().getKey(GLFW_KEY_Z) && throwCooldown < 0) {
@@ -768,6 +778,18 @@ void Player::checkCollisions()
 	if (posPlayer.y >= mapSize.y - 48 && playerState != PlayerStates::S_DEAD) {
 		playerState = PlayerStates::S_DEAD;
 		deathTimer = DEATH_TIMER;
+		if (currentCarryObj != nullptr) {
+			currentCarryObj->setMoving();
+			if (facingLeft) {
+				currentCarryObj->setPos(glm::vec2(posPlayer.x + HITBOX_PADDING_X - HITBOX_SIZE_X, posPlayer.y));
+				currentCarryObj->throwObject(glm::vec2(float(-DROP_VELOCITY), 0.f));
+			}
+			else {
+				currentCarryObj->setPos(glm::vec2(posPlayer.x + HITBOX_PADDING_X + HITBOX_SIZE_X, posPlayer.y));
+				currentCarryObj->throwObject(glm::vec2(float(DROP_VELOCITY), 0.f));
+			}
+			currentCarryObj = nullptr;
+		}
 	}
 }
 
@@ -782,6 +804,32 @@ void Player::render()
 	if (showHitbox && hitbox != nullptr) {
 		hitbox->render();
 	}
+}
+
+void Player::reset()
+{
+	sprite->changeAnimation(STAND);
+
+	showHitbox = false;
+	prevF1KeyState = false;
+	mov_acceleration_left = -1;
+	mov_acceleration_right = 1;
+	smashing = false;
+
+	// Inicializar la hitbox
+	hitboxPadding = glm::ivec2(HITBOX_PADDING_X, HITBOX_PADDING_Y);
+	hitboxWidth = HITBOX_SIZE_X;
+	hitboxHeight = HITBOX_SIZE_Y;
+	updateHitbox();
+
+
+	lives = 3;
+	tries = 3;
+	hud->setLife(lives);
+	hud->setTries(tries);
+
+	gameTime = GAME_TIME;
+	playerState = PlayerStates::S_RUN;
 }
 
 void Player::setTileMap(TileMap* tileMap)

@@ -22,6 +22,8 @@ public:
 	Scene();
 	~Scene();
 
+	void init(TextRenderer& tr);
+	void reset();
 	void init(TextRenderer& tr, string mapPath);
 	void update(int deltaTime);
 	void render();

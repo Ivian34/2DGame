@@ -83,6 +83,21 @@ void Scene::init(TextRenderer& tr, string mapPath)
 	gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
 }
 
+void Scene::reset()
+{
+	delete map;
+	map = TileMap::createTileMap("levels/levelFull.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
+	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+	player->setCheckpoint(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
+	player->setTileMap(map);
+	player->reset();
+	camPosition = glm::vec2(0.0f, 0.0f);
+	projection = glm::ortho(camPosition.x, float(SCENE_WIDTH) + camPosition.x, float(SCENE_HEIGHT) + camPosition.y, camPosition.y);
+	currentTime = 0.0f;
+	currentCamLevel = 0;
+
+}
+
 void Scene::update(int deltaTime)
 {
 	buttonBufferTime -= deltaTime / 1000.f;
@@ -125,6 +140,13 @@ void Scene::render()
 			menuOption += 1;
 			if (menuOption > 1) menuOption = 0;
 			gameMenuButton->changeAnimation(menuOption);
+		}
+		if (Game::instance().getKey(GLFW_KEY_ENTER)) {
+			if (menuOption == 0) reset();
+			else if (menuOption == 1) {
+				reset();
+				Game::instance().setMenu();
+			}
 		}
 	}
 }

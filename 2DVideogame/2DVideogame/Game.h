@@ -44,6 +44,8 @@ public:
 
 	bool getKey(int key) const;
 
+	void setMenu();
+
 private:
 	bool bPlay; // Continue to play game?
 	bool keys[GLFW_KEY_LAST+1]; // Store key states so that 

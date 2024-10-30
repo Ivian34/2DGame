@@ -31,6 +31,7 @@ public:
 	void updateDead(int deltaTime);
 	void checkCollisions();
 	void render();
+	void reset();
 
 	void setTileMap(TileMap* tileMap);
 	void setHud(HUD* playerHud);
