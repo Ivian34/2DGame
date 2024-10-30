@@ -1,7 +1,6 @@
-#ifndef _GAME_INCLUDE
-#define _GAME_INCLUDE
+#pragma once
 
-
+#include <SFML/Audio.hpp>
 #include <GLFW/glfw3.h>
 #include "Scene.h"
 #include "MenuScene.h"
@@ -29,6 +28,8 @@ public:
 
 		return G;
 	}
+	static float SOUND_EFFECTS_VOLUME;
+	static float SOUND_MUSIC_VOLUME;
 	
 	void init();
 	bool update(int deltaTime);
@@ -53,14 +54,13 @@ private:
 							    // we can have access at any time
 	GameState currentState;
 	GameState beforeState;
+	GameState lastState; //for music
 	MenuScene menuScene;
 	InstructionsMenu instructionsScene;
 	Scene scene, scene2;
 	TextRenderer* textRenderer, * textRenderer2;
-
+	sf::Music backgroundMusic;
 };
 
-
-#endif // _GAME_INCLUDE
 
 
