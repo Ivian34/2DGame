@@ -834,7 +834,7 @@ void Player::checkCollisions()
 
 void Player::render()
 {
-	if (damageTOTimer >= 0 && playerState != PlayerStates::S_DEAD) {
+	if ((damageTOTimer >= 0 || godMode) && playerState != PlayerStates::S_DEAD) {
 		if (int(damageTOTimer/DAMAGE_FLICKER_TIME)%2 == 0) {
 			sprite->render();
 		}
