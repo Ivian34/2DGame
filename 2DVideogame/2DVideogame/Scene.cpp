@@ -41,13 +41,15 @@ Scene::~Scene()
 }
 
 
-void Scene::init(TextRenderer& tr)
+void Scene::init(TextRenderer& tr, string mapPath)
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	initShaders();
 	player = new Player();
-	map = TileMap::createTileMap("levels/levelFull.txt", glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
+
+	map = TileMap::createTileMap(mapPath, glm::vec2(SCREEN_X, SCREEN_Y), texProgram, player);
+
 	player->init(glm::ivec2(SCREEN_X, SCREEN_Y), texProgram, hitboxProgram);
 	player->setPosition(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
 	player->setCheckpoint(glm::vec2(INIT_PLAYER_X_TILES * map->getTileSize(), INIT_PLAYER_Y_TILES * map->getTileSize()));
@@ -109,7 +111,6 @@ void Scene::update(int deltaTime)
 void Scene::render()
 {
 	glm::mat4 modelview;
-    glm::mat4 modelview2;
 
     glClearColor(0.4f, 0.7f, 7.0f, 1.0f);
 

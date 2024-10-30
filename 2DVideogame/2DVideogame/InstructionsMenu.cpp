@@ -9,8 +9,6 @@ void InstructionsMenu::init(TextRenderer& tr, ShaderProgram& shaderProgram) {
     textRenderer = &tr;
     texProgram = &shaderProgram;
 
-	glClearColor(0.4f, 0.1f, 1.f, 1.0f);
-
     currentTime = 0.0f;
     // Cargar la textura de fondo
     if (!instructionsBackground.loadFromFile("images/inst.png", TEXTURE_PIXEL_FORMAT_RGBA)) {
@@ -29,6 +27,8 @@ void InstructionsMenu::update(int deltaTime) {
 }
 
 void InstructionsMenu::render() {
+    glClearColor(0.f, 0.f, 0.f, 1.0f);
+
     texProgram->use();
 
     // Configurar la matriz modelview y otros uniforms
@@ -48,10 +48,11 @@ void InstructionsMenu::render() {
 
     // Renderizar el texto de instrucciones
     textRenderer->renderText("INSTRUCTIONS", 0.3f * SCENE_WIDTH, 0.25f * SCENE_HEIGHT, 1.2f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    textRenderer->renderText("Movement: WASD", 0.2f * SCENE_WIDTH, 0.4f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    textRenderer->renderText("Press S while falling to break objects", 0.2f * SCENE_WIDTH, 0.5f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    textRenderer->renderText("Reach the end of the level", 0.2f * SCENE_WIDTH, 0.6f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    textRenderer->renderText("Press i to go back", 0.2f * SCENE_WIDTH, 0.8f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+    textRenderer->renderText("Movement: arrow keys ", 0.2f * SCENE_WIDTH, 0.4f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    textRenderer->renderText("Press s while falling to break objects", 0.2f * SCENE_WIDTH, 0.5f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    textRenderer->renderText("Press z to grab objects", 0.2f * SCENE_WIDTH, 0.6f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    textRenderer->renderText("Objective: Reach the end of the level", 0.2f * SCENE_WIDTH, 0.7f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    textRenderer->renderText("Press i to go back", 0.3f * SCENE_WIDTH, 0.85f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
     glBindVertexArray(0);
 }

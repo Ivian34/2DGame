@@ -14,6 +14,7 @@
 
 // Game is a singleton (a class with a single instance) that represents our whole application
 
+enum class GameState { MENU, LEVEL1, LEVEL2, INSTRUCTIONS, GAMEOVER };
 
 class Game
 {
@@ -22,10 +23,10 @@ private:
 	Game() {}
 	
 public:
-	static Game &instance()
+	static Game& instance()
 	{
 		static Game G;
-	
+
 		return G;
 	}
 	
@@ -39,6 +40,7 @@ public:
 	void mouseMove(int x, int y);
 	void mousePress(int button);
 	void mouseRelease(int button);
+	void setState(GameState state);
 
 	bool getKey(int key) const;
 
@@ -48,12 +50,11 @@ private:
 	bool bPlay; // Continue to play game?
 	bool keys[GLFW_KEY_LAST+1]; // Store key states so that 
 							    // we can have access at any time
-	enum class GameState { MENU, PLAYING, INSTRUCTIONS, GAMEOVER};
 	GameState currentState;
 	GameState beforeState;
 	MenuScene menuScene;
 	InstructionsMenu instructionsScene;
-	Scene scene;
+	Scene scene, scene2;
 	TextRenderer* textRenderer, * textRenderer2;
 
 };
