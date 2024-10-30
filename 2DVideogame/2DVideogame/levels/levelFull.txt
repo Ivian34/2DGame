@@ -247,7 +247,7 @@ NO
 images/ObjectSprites.png                
 2 4                          
 1 1                         
-96 15 
+95 14 
 END 
 ENEMIES 
 TREE                                -- Enemy name

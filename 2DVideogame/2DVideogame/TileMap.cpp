@@ -205,6 +205,7 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 			int objN, objSize;
 			glm::ivec2 sheetSize, tilePos;
 			string item;
+			bool gem = line.compare(0, 3, "Gem") == 0;
 			getline(fin, line);
 			sstream.str(line);
 			sstream >> objN >> objSize;
@@ -229,13 +230,19 @@ bool TileMap::loadLevel(const string &levelFile, const glm::vec2 &minCoords, Sha
 				newObj->init(glm::vec2(objPos.x * tileSize, objPos.y * tileSize), tilesheetFile, program, objSize, sheetSize, minCoords);
 				newObj->setTexPosition(tilePos);
 				newObj->setTileMap(this);
-				newObj->setInteractable();
 
 				if (item.compare(0, 2, "NO") != 0) {
 					if (item.compare(0, 4, "CAKE") == 0) newObj->setContainItem("CAKE");
 				}
 
-				objects.push_back(newObj);
+				if (gem) {
+					newObj->setIsItem("GEM");
+					items.push_back(newObj);
+				}
+				else {
+					newObj->setInteractable();
+					objects.push_back(newObj);
+				}
 			}
 			getline(fin, line);
 			
@@ -739,10 +746,12 @@ void TileMap::createItem(const glm::ivec2 & pos, const string & type, int itemSi
 	newObj->init(pos, "images/ObjectSprites.png", *texProgram, itemSize, spritesheetSize, spritesheetDispl);
 	
 	if (type.compare(0, 4, "CAKE") == 0) newObj->setTexPosition(glm::ivec2(0, 1));
+	else if (type.compare(0, 3, "GEM") == 0) newObj->setTexPosition(glm::ivec2(1));
+	else if (type.compare(0, 4, "COIN") == 0) newObj->setTexPosition(glm::ivec2(1));
 
 	newObj->setTileMap(this);
 	newObj->setIsItem(type);
-	newObj->throwObject(glm::vec2(0.f));
+	if (type.compare(0, 3, "GEM") != 0) newObj->throwObject(glm::vec2(0.f));
 	items.push_back(newObj); 
 }
 
