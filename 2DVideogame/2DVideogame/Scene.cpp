@@ -242,15 +242,15 @@ void Scene::updateCamera()
 		gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
 	}
 
-	if ((pos.x - camPosition.x) < (SCENE_WIDTH / 3) && camPosition.x > 0) {
-		camPosition.x = pos.x - SCENE_WIDTH / 3;
+	if ((pos.x - camPosition.x) < (float(SCENE_WIDTH) / 3.f) && camPosition.x > 0) {
+		camPosition.x = float(pos.x) - float(SCENE_WIDTH) / 3.f;
 		if (camPosition.x < 0) camPosition.x = 0;
 		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
 		gameMenu->setPosition(glm::vec2(camPosition.x + GAME_MENU_POS_X, camPosition.y + GAME_MENU_POS_Y));
 		gameMenuButton->setPosition(glm::vec2(camPosition.x + GAME_MENU_BUTTON_POS_X, camPosition.y + GAME_MENU_BUTTON_POS_Y));
 	}
-	if ((pos.x - camPosition.x) > 2*(SCENE_WIDTH / 3) && camPosition.x < (mapSize.x - SCENE_WIDTH)) {
-		camPosition.x = pos.x - 2*(SCENE_WIDTH / 3);
+	if ((pos.x - camPosition.x) > 2*(float(SCENE_WIDTH) / 3.f) && camPosition.x < (mapSize.x - SCENE_WIDTH)) {
+		camPosition.x = float(pos.x) - 2*(float(SCENE_WIDTH) / 3.f);
 		if (camPosition.x > (mapSize.x - SCENE_WIDTH)) camPosition.x = mapSize.x - SCENE_WIDTH;
 		hud->setPos(glm::vec2(camPosition.x, camPosition.y + SCENE_HEIGHT - 24));
 		gameMenu->setPosition(glm::vec2(camPosition.x + GAME_MENU_POS_X, camPosition.y + GAME_MENU_POS_Y));

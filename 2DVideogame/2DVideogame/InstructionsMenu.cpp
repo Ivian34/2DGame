@@ -48,9 +48,9 @@ void InstructionsMenu::render() {
 
     // Renderizar el texto de instrucciones
     textRenderer->renderText("INSTRUCTIONS", 0.3f * SCENE_WIDTH, 0.25f * SCENE_HEIGHT, 1.2f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    textRenderer->renderText("Movement: arrow keys ", 0.2f * SCENE_WIDTH, 0.4f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    textRenderer->renderText("Press s while falling to break objects", 0.2f * SCENE_WIDTH, 0.5f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    textRenderer->renderText("Press z to grab objects", 0.2f * SCENE_WIDTH, 0.6f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    textRenderer->renderText("Movement: WASD keys ", 0.2f * SCENE_WIDTH, 0.4f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    textRenderer->renderText("Press S while falling to break objects", 0.2f * SCENE_WIDTH, 0.5f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    textRenderer->renderText("Press SPACE to grab objects", 0.2f * SCENE_WIDTH, 0.6f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     textRenderer->renderText("Objective: Reach the end of the level", 0.2f * SCENE_WIDTH, 0.7f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     textRenderer->renderText("Press i to go back", 0.3f * SCENE_WIDTH, 0.85f * SCENE_HEIGHT, 0.8f, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 

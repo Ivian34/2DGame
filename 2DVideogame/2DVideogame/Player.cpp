@@ -267,7 +267,7 @@ void Player::update(int deltaTime) {
 void Player::updateRun(int deltaTime)
 {
 	hitboxPadding.y = HITBOX_PADDING_Y, hitboxHeight = HITBOX_SIZE_Y;
-		if (Game::instance().getKey(GLFW_KEY_LEFT))
+		if (Game::instance().getKey(GLFW_KEY_A))
 		{
 			facingLeft = true;
 			sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
@@ -289,7 +289,7 @@ void Player::updateRun(int deltaTime)
 				if (animBufferTimer < 0) sprite->changeAnimation(STAND);
 			}
 		}
-		else if (Game::instance().getKey(GLFW_KEY_RIGHT))
+		else if (Game::instance().getKey(GLFW_KEY_D))
 		{
 			facingLeft = false;
 			sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
@@ -311,7 +311,7 @@ void Player::updateRun(int deltaTime)
 				if (animBufferTimer < 0) sprite->changeAnimation(STAND);
 			}
 		}
-		else if (Game::instance().getKey(GLFW_KEY_DOWN) && !bJumping)
+		else if (Game::instance().getKey(GLFW_KEY_S) && !bJumping)
 		{
 			playerState = PlayerStates::S_CROUCH;
 			if (sprite->animation() != CROUCH && animBufferTimer < 0) {
@@ -338,7 +338,7 @@ void Player::updateRun(int deltaTime)
 		jumpAngle += JUMP_ANGLE_STEP;
 		//mov_acceleration_left = -1;
 		//mov_acceleration_right = 1;
-		if (Game::instance().getKey(GLFW_KEY_DOWN))
+		if (Game::instance().getKey(GLFW_KEY_S))
 		{
 			playerState = PlayerStates::S_SMASH;
 			if (sprite->animation() != SMASH) {
@@ -392,7 +392,7 @@ void Player::updateRun(int deltaTime)
 		updateHitbox();
 		if (condition)
 		{
-			if (Game::instance().getKey(GLFW_KEY_UP) && jumpBufferTimer < 0 && playerState == PlayerStates::S_RUN)
+			if (Game::instance().getKey(GLFW_KEY_W) && jumpBufferTimer < 0 && playerState == PlayerStates::S_RUN)
 			{
 				//mov_acceleration_left = -1;
 				//mov_acceleration_right = 1;
@@ -402,7 +402,7 @@ void Player::updateRun(int deltaTime)
 				jumpAngle = 0;
 				startY = posPlayer.y;
 			}
-			else if (Game::instance().getKey(GLFW_KEY_Z) && playerState == PlayerStates::S_RUN) {
+			else if (Game::instance().getKey(GLFW_KEY_SPACE) && playerState == PlayerStates::S_RUN) {
 				mov_acceleration_left = -1;
 				mov_acceleration_right = 1;
 				if (lastInteractableObj != nullptr && collisions[OBJH] && lastInteractableObj->canBeMoved(posPlayer.y + PLAYER_HEIGHT)) {
@@ -415,7 +415,7 @@ void Player::updateRun(int deltaTime)
 			}
 		}
 		else { //si estas cayendo
-			if (Game::instance().getKey(GLFW_KEY_DOWN))
+			if (Game::instance().getKey(GLFW_KEY_S))
 			{
 				playerState = PlayerStates::S_SMASH;
 				if (sprite->animation() != SMASH) {
@@ -434,7 +434,7 @@ void Player::updateRun(int deltaTime)
 void Player::updateCrouch(int deltaTime)
 {
 	hitboxPadding.y = HITBOX_PADDING_SMALL_Y, hitboxHeight = HITBOX_SIZE_SMALL_Y;
-	if (!Game::instance().getKey(GLFW_KEY_DOWN))
+	if (!Game::instance().getKey(GLFW_KEY_S))
 	{
 		playerState = PlayerStates::S_RUN;
 	}
@@ -453,7 +453,7 @@ void Player::updateSmashing(int deltaTime) {
 
 	hitboxPadding.y = HITBOX_PADDING_SMALL_Y, hitboxHeight = HITBOX_SIZE_SMALL_Y;
 
-	if (Game::instance().getKey(GLFW_KEY_LEFT)) {
+	if (Game::instance().getKey(GLFW_KEY_A)) {
 		facingLeft = true;
 		sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
 		translatePosition(glm::ivec2(-SMASH_SPEED, 0));
@@ -465,7 +465,7 @@ void Player::updateSmashing(int deltaTime) {
 			updateHitbox();
 		}
 	}
-	else if (Game::instance().getKey(GLFW_KEY_RIGHT)) {
+	else if (Game::instance().getKey(GLFW_KEY_D)) {
 		facingLeft = false;
 		sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
 		translatePosition(glm::ivec2(SMASH_SPEED, 0));
@@ -560,7 +560,7 @@ void Player::updateSmashing(int deltaTime) {
 void Player::updateCarry(int deltaTime)
 {
 	hitboxPadding.y = HITBOX_PADDING_Y, hitboxHeight = HITBOX_SIZE_Y;
-		if (Game::instance().getKey(GLFW_KEY_LEFT))
+		if (Game::instance().getKey(GLFW_KEY_A))
 		{
 			facingLeft = true;
 			sprite->setScale(glm::vec2(-1.f, 1.f)); // Voltear horizontalmente
@@ -584,7 +584,7 @@ void Player::updateCarry(int deltaTime)
 				sprite->changeAnimation(HOLD_STAND);
 			}
 		}
-		else if (Game::instance().getKey(GLFW_KEY_RIGHT))
+		else if (Game::instance().getKey(GLFW_KEY_D))
 		{
 			facingLeft = false;
 			sprite->setScale(glm::vec2(1.f, 1.f)); // Escala normal
@@ -666,7 +666,7 @@ void Player::updateCarry(int deltaTime)
 		updateHitbox();
 		if (grounded)
 		{
-			if (Game::instance().getKey(GLFW_KEY_UP) && jumpBufferTimer < 0)
+			if (Game::instance().getKey(GLFW_KEY_W) && jumpBufferTimer < 0)
 			{
 				//mov_acceleration_left = -1;
 				//mov_acceleration_right = 1;
@@ -685,7 +685,7 @@ void Player::updateCarry(int deltaTime)
 		}
 	}
 
-		if (Game::instance().getKey(GLFW_KEY_Z) && throwCooldown < 0) {
+		if (Game::instance().getKey(GLFW_KEY_SPACE) && throwCooldown < 0) {
 			//mov_acceleration_left = -1;
 			//mov_acceleration_right = 1;
 			currentCarryObj->setMoving();
@@ -865,7 +865,7 @@ void Player::checkCollisions()
 
 void Player::render()
 {
-	if ((damageTOTimer >= 0 || godMode) && playerState != PlayerStates::S_DEAD) {
+	if ((damageTOTimer >= 0) && playerState != PlayerStates::S_DEAD) {
 		if (int(damageTOTimer/DAMAGE_FLICKER_TIME)%2 == 0) {
 			sprite->render();
 		}
