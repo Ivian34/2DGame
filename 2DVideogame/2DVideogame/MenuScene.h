@@ -4,6 +4,7 @@
 #include "Texture.h"
 #include <glm/glm.hpp>
 #include <vector>
+#include <SFML/Audio.hpp>
 #include "TextRenderer.h"
 #include "Sprite.h"
 
@@ -38,5 +39,8 @@ private:
 	TextRenderer *textRenderer, *textRenderer2;
     bool upKeyPrevState = false;
     bool downKeyPrevState = false;
+
+    sf::SoundBuffer soundBuffer;
+    sf::Sound soundEffect;
 };
 

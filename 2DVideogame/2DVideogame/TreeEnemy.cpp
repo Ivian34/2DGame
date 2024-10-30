@@ -1,5 +1,6 @@
 #include "TreeEnemy.h"
 #include "Player.h"
+#include "Game.h"
 #include <iostream>
 
 #define TREE_WIDTH 24
@@ -47,6 +48,15 @@ void TreeEnemy::init(const glm::ivec2& tileMapPos, ShaderProgram& shaderProgram)
 
 	showHitbox = false;
 	prevF1KeyState = false;
+
+	// Cargar el sonido
+	if (!dieBuffer.loadFromFile("sounds/SFX/Ouch/Wav/Ouch__009.wav")) {
+		std::cerr << "Error al cargar Select.wav" << std::endl;
+	}
+
+	// Crear una instancia de sf::Sound y asignarle el buffer
+	dieEffect.setBuffer(dieBuffer);
+	dieEffect.setVolume(Game::SOUND_EFFECTS_VOLUME + 20);
 }
 
 void TreeEnemy::update(int deltaTime) {
@@ -110,6 +120,7 @@ void TreeEnemy::updateDie(int deltaTime)
 {
 	if (sprite->animation() != DIE) {
 		sprite->changeAnimation(DIE);
+		dieEffect.play();
 		bJumping = true;
 		jumpAngle = 60;
 		startY = posTree.y + int(DEATH_JUMP_HEIGHT * sin(3.14159f * jumpAngle / 180.0f));

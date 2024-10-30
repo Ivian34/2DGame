@@ -64,14 +64,20 @@ images/ObjectSprites.png       -- Tilesheet
 70 10 
 71 11 
 CakeChest
-3 16                       
+1 16                       
 CAKE                     
 images/ObjectSprites.png           
 3 4                         
 1 0                      
-29 15 
 63 15 
+CoinChest
+2 16                       
+COIN                     
+images/ObjectSprites.png           
+3 4                         
+1 0                      
 70 11 
+29 15 
 Gem
 1 16                 
 NO                      

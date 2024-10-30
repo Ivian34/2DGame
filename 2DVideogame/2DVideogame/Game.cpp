@@ -11,12 +11,16 @@
 #define LEVEL2_INIT_PLAYER_X_TILES 8
 #define LEVEL2_INIT_PLAYER_Y_TILES 82
 
+float Game::SOUND_EFFECTS_VOLUME = 60.0f;
+float Game::SOUND_MUSIC_VOLUME = 20.0f;
+
 void Game::init()
 {
     bPlay = true;
     glClearColor(0.4f, 0.7f, 7.0f, 1.0f);
 
     currentState = GameState::MENU;
+    lastState = GameState::MENU;
 
     textRenderer = new TextRenderer("fonts/8bitBold.ttf", SCENE_WIDTH, SCENE_HEIGHT, FONT_SIZE);
     textRenderer2 = new TextRenderer("fonts/8bitBold.ttf", SCENE_WIDTH, SCENE_HEIGHT, FONT_SIZE2);
@@ -30,25 +34,66 @@ void Game::init()
 	scene2.init(*textRenderer, "levels/levelFull.txt", glm::ivec2(LEVEL2_INIT_PLAYER_X_TILES, LEVEL2_INIT_PLAYER_Y_TILES)); //LEVEL2
 	instructionsScene.init(*textRenderer, menuScene.getShaderProgram());
 
+    backgroundMusic.setVolume(SOUND_MUSIC_VOLUME);
+    // Cargar y reproducir la música del menú
+    if (!backgroundMusic.openFromFile("sounds/derelict.ogg")) {  // Cambia el nombre del archivo si es necesario
+        std::cerr << "Error al cargar la música del menú" << std::endl;
+    }
+    backgroundMusic.setLoop(true);  // Configura la música para que se repita en bucle
+    backgroundMusic.play();         // Inicia la reproducción de la música
 }
 
 bool Game::update(int deltaTime)
 {
+    // Detecta si el estado cambió
+    if (currentState != lastState) {
+        // Detener la música actual si cambia de escena
+        backgroundMusic.stop();
+
+        // Cargar la música de acuerdo con la escena actual
+        if (currentState == GameState::MENU) {
+            if (!backgroundMusic.openFromFile("sounds/derelict.ogg")) {
+                std::cerr << "Error al cargar la música del menú" << std::endl;
+            }
+        }
+        else if (currentState == GameState::LEVEL1) {
+            if (!backgroundMusic.openFromFile("sounds/lvl2music.ogg")) {
+                std::cerr << "Error al cargar la música de Level 1" << std::endl;
+            }
+        }
+        else if (currentState == GameState::LEVEL2) {
+            if (!backgroundMusic.openFromFile("sounds/lvl1music.ogg")) {
+                std::cerr << "Error al cargar la música de Level 2" << std::endl;
+            }
+        }
+        else if (currentState == GameState::INSTRUCTIONS) {
+            if (!backgroundMusic.openFromFile("sounds/instrmusic.wav")) {
+                std::cerr << "Error al cargar la música de instrucciones" << std::endl;
+            }
+        }
+
+        // Reproducir la nueva música
+        backgroundMusic.setLoop(true); // Para que la música se repita en bucle
+        backgroundMusic.play();
+
+        // Actualizar el estado anterior
+        lastState = currentState;
+    }
+
+    // Actualizar la escena actual
     if (currentState == GameState::MENU)
         menuScene.update(deltaTime);
 
     else if (currentState == GameState::LEVEL1)
         scene.update(deltaTime);
-
-	else if (currentState == GameState::LEVEL2)
-		scene2.update(deltaTime);
-
-	else if (currentState == GameState::INSTRUCTIONS) {
-		instructionsScene.update(deltaTime);
-	}
+    else if (currentState == GameState::LEVEL2)
+        scene2.update(deltaTime);
+    else if (currentState == GameState::INSTRUCTIONS)
+        instructionsScene.update(deltaTime);
 
     return bPlay;
 }
+
 
 void Game::render()
 {
